@@ -1,5 +1,11 @@
 flask==3.0.3
 flask-cors==4.0.1
 python-dotenv==1.0.1
-google-genai>=0.6.0
-chromadb==0.5.5
+# BUG FIX: google-genai>=0.6.0 is too loose — the API changed significantly
+# between 0.6 and 1.x. Pin to >=1.0.0 for stable embed_content() and
+# generate_content_stream() behaviour.
+google-genai>=1.0.0
+# BUG FIX: chromadb==0.5.5 (mid-2024) has breaking changes around
+# PersistentClient on Windows. Current stable is 0.6.x.
+# Pin more tightly to avoid surprise breakage.
+chromadb>=0.6.0,<0.7.0

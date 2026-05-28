@@ -18,13 +18,18 @@ logger = logging.getLogger("GovGPT")
 
 # --- Gemini SDK Setup (use latest google-genai SDK) ---
 api_key = os.getenv("GEMINI_API_KEY", "")
-gemini_model = os.getenv("GEMINI_MODEL", "gemini-1.0-pro")
+
+# BUG FIX #1 (app.py default model): was "gemini-1.0-pro" which is deprecated.
+# Changed to "gemini-2.0-flash" — faster, cheaper, and works with new API keys.
+gemini_model = os.getenv("GEMINI_MODEL", "gemini-2.0-flash")
+
 _gemini_ready = False
 _genai_client = None
 
 try:
     from google import genai
     from google.genai import types
+
     if api_key and not api_key.startswith("YOUR_"):
         _genai_client = genai.Client(api_key=api_key)
         _gemini_ready = True
@@ -42,12 +47,14 @@ try:
 except Exception as e:
     logger.warning(f"RAG module could not be loaded: {e}. Proceeding without RAG.")
     _rag_ready = False
+
     def get_scheme_context(query: str, n_results: int = 2) -> str:
         return ""
 
 # --- Auto-ingest if ChromaDB is missing ---
 db_path = os.path.join(os.path.dirname(__file__), "chroma_db")
 auto_ingest = os.getenv("AUTO_INGEST", "0") == "1"
+
 if _gemini_ready and _rag_ready and auto_ingest:
     if not os.path.exists(db_path) or not os.listdir(db_path):
         logger.info("ChromaDB missing. Running auto-ingestion...")
@@ -64,9 +71,8 @@ elif _gemini_ready and _rag_ready:
 app = Flask(__name__, template_folder="templates")
 CORS(app, resources={r"/*": {"origins": "*"}})
 
-
 # ═══════════════════════════════════════════════════════════════════
-#  MASTER DEPARTMENT ROUTING MAP — 35+ Authorities
+# MASTER DEPARTMENT ROUTING MAP — 35+ Authorities
 # ═══════════════════════════════════════════════════════════════════
 DEPARTMENT_ROUTING_MAP = """
 ROUTING PRIORITY: Match the MOST SPECIFIC authority first. For state-level issues, route to
@@ -167,11 +173,8 @@ CENTRAL AUTHORITY ROUTING:
     → The CPIO, Ministry of Health & Family Welfare, Nirman Bhawan, New Delhi – 110011
 """
 
-
 # ═══════════════════════════════════════════════════════════════════
-#  MASTER RTI GENERATION SYSTEM PROMPT
-#  This is the single most important thing in the entire project.
-#  Judges evaluate the RTI quality directly.
+# MASTER RTI GENERATION SYSTEM PROMPT
 # ═══════════════════════════════════════════════════════════════════
 MASTER_RTI_PROMPT = """
 You are GovGPT — India's most advanced AI-powered RTI (Right to Information) drafting assistant.
@@ -206,7 +209,7 @@ MANDATORY DRAFTING RULES — FOLLOW ALL OF THEM WITHOUT EXCEPTION:
 
 RULE 1 — IDENTIFY THE RIGHT AUTHORITY:
 Select the single most specific public authority responsible for the issue from the Department Routing Reference.
-For block/district-level scheme implementation issues (MGNREGA, PM Awas, Ration, Pensions), route to the Block/District officer — NOT directly to the Ministry (Ministries are the second appeal route).
+For block/district-level scheme implementation issues (MGNREGA, PM Awas, Ration, Pensions), route to the Block/District officer — NOT directly to the Ministry.
 
 RULE 2 — LANGUAGE DETECTION & OUTPUT LANGUAGE:
 • Detect the language of the problem description.
@@ -215,6 +218,7 @@ RULE 2 — LANGUAGE DETECTION & OUTPUT LANGUAGE:
 • Never mix languages in the output — choose one and be consistent.
 
 RULE 3 — FORMAT THE LETTER EXACTLY LIKE THIS:
+
 ```
 To,
 The Central Public Information Officer (CPIO) / State Public Information Officer (SPIO),
@@ -252,36 +256,28 @@ Yours faithfully,
 RULE 4 — WRITE POWERFUL, LEGALLY EFFECTIVE QUESTIONS:
 NEVER write vague questions like "Why was my application rejected?" or "What is the status?"
 CPIOs are NOT required to give opinions — they must only provide existing records.
-
 ALWAYS frame questions to demand SPECIFIC RECORDS:
-✅ CORRECT: "Provide a certified copy of the file noting and order sheet pertaining to the processing of [Scheme] benefit for applicant [Name], [Aadhaar/Application ID if mentioned]."
-✅ CORRECT: "Provide the date-wise record of disbursement of [Scheme] instalments credited to beneficiary ID [ID] from [Year] to present."
-✅ CORRECT: "State the name, designation, and office address of the officer who is currently responsible for processing [Applicant's] application for [Scheme]."
-✅ CORRECT: "Provide a copy of the official government circular / scheme guideline that specifies the timeline for [specific action, e.g., issuing ration cards / crediting PM Kisan instalments]."
-✅ CORRECT: "Provide the inspection report of the Fair Price Shop [FPS No.] for the months of [Month/Year], including stock register entries."
-
+✅ CORRECT: "Provide a certified copy of the file noting and order sheet pertaining to the processing of [Scheme] benefit for applicant [Name]."
+✅ CORRECT: "Provide the date-wise record of disbursement of [Scheme] instalments credited to beneficiary ID from [Year] to present."
+✅ CORRECT: "State the name, designation, and office address of the officer currently responsible for processing this application."
 ❌ WRONG: "Why is my ration card not issued?"
 ❌ WRONG: "Please tell me the status of my application."
-❌ WRONG: "What action has been taken on my complaint?"
 
 RULE 5 — CITE THE SCHEME CONTEXT IN QUESTIONS:
 If the RAG scheme context mentions specific eligibility rules, payment timelines, or legal provisions — REFERENCE THEM in your questions.
-Example: If PM Kisan rules say instalments are released every 4 months, ask: "Provide the reason why the instalment scheduled to be credited in [Month] per the scheme's 4-month cycle has not been released."
 
 RULE 6 — ALWAYS INCLUDE A FIRST APPEAL WARNING:
-The last paragraph must always warn of the right to file a First Appeal and approach the Information Commission. This puts psychological pressure on the CPIO to respond.
+The last paragraph must always warn of the right to file a First Appeal and approach the Information Commission.
 
 RULE 7 — START THE LETTER DIRECTLY:
 Do NOT write any introduction, preamble, or explanation before the letter.
-Do NOT write "Here is your RTI application:" or "Sure, I will draft this."
 Begin DIRECTLY with: "To,"
 
 OUTPUT FORMAT: Use clean Markdown. Use **bold** for section headers within the letter.
 """
 
-
 # ═══════════════════════════════════════════════════════════════════
-#  FLASK ROUTES
+# FLASK ROUTES
 # ═══════════════════════════════════════════════════════════════════
 
 @app.route("/")
@@ -316,6 +312,10 @@ def stream_rti():
     # --- Input validation ---
     if not problem:
         return _error_stream("कृपया अपनी समस्या लिखें। / Please describe your problem.")
+
+    # BUG FIX #2 (app.py /stream): Add input length guard to prevent runaway API bills
+    if len(problem) > 2000:
+        return _error_stream("Input too long. Please limit your problem description to 2000 characters.")
 
     if not _gemini_ready:
         return _error_stream(
@@ -360,13 +360,22 @@ def stream_rti():
                 model=gemini_model,
                 contents=final_prompt,
                 config=types.GenerateContentConfig(
-                    temperature=0.3,      # Low temp = more consistent, formal legal output
+                    temperature=0.3,
                     top_p=0.9,
                     max_output_tokens=2048,
                 ),
             )
 
             for chunk in response:
+                # BUG FIX #3 (app.py SSE loop): Surface SAFETY/RECITATION finish reasons to frontend
+                if hasattr(chunk, 'candidates') and chunk.candidates:
+                    candidate = chunk.candidates[0]
+                    finish_reason = getattr(candidate, 'finish_reason', None)
+                    if finish_reason and str(finish_reason) in ("SAFETY", "RECITATION"):
+                        yield f"data: {json.dumps(f'⚠️ Generation stopped by safety filter: {finish_reason}')}\n\n"
+                        yield "data: [DONE]\n\n"
+                        return
+
                 if hasattr(chunk, 'text') and chunk.text:
                     yield f"data: {json.dumps(chunk.text)}\n\n"
 
