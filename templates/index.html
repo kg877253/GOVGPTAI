@@ -1,0 +1,1469 @@
+<!DOCTYPE html>
+<html lang="en">
+<head>
+    <meta charset="UTF-8">
+    <meta name="viewport" content="width=device-width, initial-scale=1.0">
+    <title>GovGPT — RTI Application Generator | Know Your Rights</title>
+    <meta name="description" content="GovGPT uses AI to help every Indian citizen file a legally correct RTI application in 60 seconds. Supports Hindi and English voice input.">
+
+    <!-- Google Fonts -->
+    <link rel="preconnect" href="https://fonts.googleapis.com">
+    <link rel="preconnect" href="https://fonts.gstatic.com" crossorigin>
+    <link href="https://fonts.googleapis.com/css2?family=Inter:ital,wght@0,300;0,400;0,500;0,600;0,700;1,400&family=Outfit:wght@400;500;600;700;800;900&family=JetBrains+Mono:wght@400;500&display=swap" rel="stylesheet">
+
+    <!-- CDN Libraries -->
+    <script src="https://cdnjs.cloudflare.com/ajax/libs/jspdf/2.5.1/jspdf.umd.min.js"></script>
+    <script src="https://cdn.jsdelivr.net/npm/marked/marked.min.js"></script>
+
+    <style>
+        /* ═══════════════════════════════════════════════════════════
+           DESIGN TOKENS
+        ═══════════════════════════════════════════════════════════ */
+        :root {
+            --bg-void:        #06070d;
+            --bg-deep:        #0d0e1a;
+            --bg-surface:     #13141f;
+            --bg-raised:      #1a1b2e;
+            --bg-glass:       rgba(19, 20, 31, 0.75);
+
+            --violet:         #7c3aed;
+            --violet-light:   #a78bfa;
+            --violet-glow:    rgba(124, 58, 237, 0.18);
+            --cyan:           #06b6d4;
+            --cyan-light:     #67e8f9;
+            --cyan-glow:      rgba(6, 182, 212, 0.15);
+
+            --green:          #10b981;
+            --green-glow:     rgba(16, 185, 129, 0.15);
+            --amber:          #f59e0b;
+            --rose:           #f43f5e;
+            --rose-glow:      rgba(244, 63, 94, 0.15);
+
+            --text-white:     #f8fafc;
+            --text-soft:      #cbd5e1;
+            --text-muted:     #64748b;
+            --text-faint:     #334155;
+
+            --border:         rgba(255, 255, 255, 0.07);
+            --border-hover:   rgba(255, 255, 255, 0.14);
+            --border-active:  rgba(124, 58, 237, 0.5);
+
+            --gradient-brand: linear-gradient(135deg, var(--violet) 0%, var(--cyan) 100%);
+            --gradient-hero:  linear-gradient(180deg, rgba(124,58,237,0.06) 0%, transparent 60%);
+            --shadow-card:    0 4px 24px rgba(0,0,0,0.4), 0 1px 4px rgba(0,0,0,0.3);
+            --shadow-glow:    0 0 40px var(--violet-glow), 0 4px 24px rgba(0,0,0,0.5);
+        }
+
+        /* ═══════════════════════════════════════════════════════════
+           RESET & BASE
+        ═══════════════════════════════════════════════════════════ */
+        *, *::before, *::after { box-sizing: border-box; margin: 0; padding: 0; }
+
+        html { scroll-behavior: smooth; }
+
+        body {
+            font-family: 'Inter', sans-serif;
+            background: var(--bg-void);
+            color: var(--text-white);
+            min-height: 100vh;
+            overflow-x: hidden;
+            background-image:
+                radial-gradient(ellipse 80% 50% at 0% 0%, rgba(124,58,237,0.10) 0%, transparent 70%),
+                radial-gradient(ellipse 60% 40% at 100% 100%, rgba(6,182,212,0.07) 0%, transparent 70%);
+        }
+
+        h1,h2,h3,h4 { font-family: 'Outfit', sans-serif; font-weight: 700; }
+
+        /* ═══════════════════════════════════════════════════════════
+           SCROLLBAR
+        ═══════════════════════════════════════════════════════════ */
+        ::-webkit-scrollbar { width: 6px; height: 6px; }
+        ::-webkit-scrollbar-track { background: var(--bg-deep); }
+        ::-webkit-scrollbar-thumb { background: var(--text-faint); border-radius: 3px; }
+        ::-webkit-scrollbar-thumb:hover { background: var(--text-muted); }
+
+        /* ═══════════════════════════════════════════════════════════
+           TOP ANNOUNCEMENT BANNER
+        ═══════════════════════════════════════════════════════════ */
+        .announce-bar {
+            background: linear-gradient(90deg, var(--violet) 0%, #5b21b6 50%, var(--cyan) 100%);
+            padding: 0.5rem 1rem;
+            text-align: center;
+            font-size: 0.8rem;
+            font-weight: 600;
+            letter-spacing: 0.04em;
+            color: rgba(255,255,255,0.95);
+            position: relative;
+            overflow: hidden;
+        }
+        .announce-bar::before {
+            content: '';
+            position: absolute; inset: 0;
+            background: linear-gradient(90deg, transparent, rgba(255,255,255,0.08), transparent);
+            animation: shimmer 3s infinite;
+        }
+        @keyframes shimmer {
+            0% { transform: translateX(-100%); }
+            100% { transform: translateX(100%); }
+        }
+
+        /* ═══════════════════════════════════════════════════════════
+           NAVIGATION
+        ═══════════════════════════════════════════════════════════ */
+        nav {
+            display: flex;
+            align-items: center;
+            justify-content: space-between;
+            padding: 1.1rem 2rem;
+            border-bottom: 1px solid var(--border);
+            background: rgba(6, 7, 13, 0.85);
+            backdrop-filter: blur(20px);
+            -webkit-backdrop-filter: blur(20px);
+            position: sticky;
+            top: 0;
+            z-index: 200;
+        }
+
+        .nav-brand {
+            display: flex;
+            align-items: center;
+            gap: 0.75rem;
+        }
+
+        .brand-icon {
+            width: 38px; height: 38px;
+            background: var(--gradient-brand);
+            border-radius: 10px;
+            display: flex; align-items: center; justify-content: center;
+            font-size: 1.25rem;
+            box-shadow: 0 0 20px var(--violet-glow);
+        }
+
+        .brand-name {
+            font-family: 'Outfit', sans-serif;
+            font-size: 1.6rem;
+            font-weight: 800;
+            letter-spacing: -0.04em;
+            background: var(--gradient-brand);
+            -webkit-background-clip: text;
+            -webkit-text-fill-color: transparent;
+        }
+
+        .brand-tagline {
+            font-size: 0.72rem;
+            font-weight: 600;
+            letter-spacing: 0.08em;
+            text-transform: uppercase;
+            color: var(--violet-light);
+            background: rgba(124,58,237,0.1);
+            border: 1px solid rgba(124,58,237,0.25);
+            padding: 0.2rem 0.6rem;
+            border-radius: 20px;
+        }
+
+        .nav-stats {
+            display: flex;
+            gap: 2rem;
+            align-items: center;
+        }
+
+        .nav-stat {
+            display: flex;
+            flex-direction: column;
+            align-items: flex-end;
+        }
+
+        .nav-stat-val {
+            font-family: 'Outfit', sans-serif;
+            font-size: 1.15rem;
+            font-weight: 800;
+            color: var(--cyan);
+            line-height: 1;
+        }
+
+        .nav-stat-label {
+            font-size: 0.68rem;
+            color: var(--text-muted);
+            font-weight: 500;
+            letter-spacing: 0.04em;
+            text-transform: uppercase;
+        }
+
+        @media (max-width: 768px) {
+            nav { padding: 1rem 1rem; }
+            .nav-stats { gap: 1rem; }
+            .nav-stat-val { font-size: 1rem; }
+        }
+
+        /* ═══════════════════════════════════════════════════════════
+           HERO SECTION
+        ═══════════════════════════════════════════════════════════ */
+        .hero {
+            text-align: center;
+            padding: 3.5rem 2rem 2rem;
+            background: var(--gradient-hero);
+            border-bottom: 1px solid var(--border);
+        }
+
+        .hero-badge {
+            display: inline-flex;
+            align-items: center;
+            gap: 0.4rem;
+            background: rgba(16,185,129,0.1);
+            border: 1px solid rgba(16,185,129,0.25);
+            color: var(--green);
+            padding: 0.3rem 0.9rem;
+            border-radius: 20px;
+            font-size: 0.78rem;
+            font-weight: 600;
+            margin-bottom: 1.25rem;
+            animation: fadeInDown 0.6s ease;
+        }
+
+        .hero-badge::before {
+            content: '';
+            width: 6px; height: 6px;
+            background: var(--green);
+            border-radius: 50%;
+            animation: pulse-dot 2s infinite;
+        }
+
+        @keyframes pulse-dot {
+            0%, 100% { opacity: 1; transform: scale(1); }
+            50% { opacity: 0.5; transform: scale(0.8); }
+        }
+
+        .hero h1 {
+            font-size: clamp(2rem, 5vw, 3.2rem);
+            font-weight: 900;
+            letter-spacing: -0.04em;
+            line-height: 1.1;
+            margin-bottom: 1rem;
+            animation: fadeInDown 0.7s ease 0.1s both;
+        }
+
+        .hero h1 .highlight {
+            background: var(--gradient-brand);
+            -webkit-background-clip: text;
+            -webkit-text-fill-color: transparent;
+        }
+
+        .hero-sub {
+            font-size: 1.05rem;
+            color: var(--text-soft);
+            max-width: 600px;
+            margin: 0 auto 2rem;
+            line-height: 1.6;
+            animation: fadeInDown 0.8s ease 0.2s both;
+        }
+
+        /* Animated Impact Stats */
+        .impact-row {
+            display: flex;
+            justify-content: center;
+            gap: 2.5rem;
+            flex-wrap: wrap;
+            animation: fadeInDown 0.9s ease 0.3s both;
+        }
+
+        .impact-item {
+            display: flex;
+            flex-direction: column;
+            align-items: center;
+            gap: 0.2rem;
+        }
+
+        .impact-number {
+            font-family: 'Outfit', sans-serif;
+            font-size: 2rem;
+            font-weight: 900;
+            color: var(--violet-light);
+        }
+
+        .impact-desc {
+            font-size: 0.78rem;
+            color: var(--text-muted);
+            font-weight: 500;
+        }
+
+        @keyframes fadeInDown {
+            from { opacity: 0; transform: translateY(-12px); }
+            to { opacity: 1; transform: translateY(0); }
+        }
+
+        /* ═══════════════════════════════════════════════════════════
+           WORKSPACE GRID
+        ═══════════════════════════════════════════════════════════ */
+        .workspace {
+            display: grid;
+            grid-template-columns: minmax(0, 1fr) minmax(0, 1.6fr);
+            gap: 1.5rem;
+            padding: 1.5rem 2rem 3rem;
+            max-width: 1500px;
+            margin: 0 auto;
+            width: 100%;
+        }
+
+        @media (max-width: 1100px) {
+            .workspace { grid-template-columns: 1fr; padding: 1rem; }
+        }
+
+        /* ═══════════════════════════════════════════════════════════
+           PANEL COMPONENT
+        ═══════════════════════════════════════════════════════════ */
+        .panel {
+            background: var(--bg-glass);
+            border: 1px solid var(--border);
+            border-radius: 20px;
+            backdrop-filter: blur(16px);
+            -webkit-backdrop-filter: blur(16px);
+            box-shadow: var(--shadow-card);
+            display: flex;
+            flex-direction: column;
+            gap: 1.25rem;
+            padding: 1.75rem;
+            transition: border-color 0.3s ease;
+        }
+
+        .panel:hover { border-color: var(--border-hover); }
+
+        .panel-head {
+            display: flex;
+            align-items: center;
+            gap: 0.75rem;
+            padding-bottom: 1.25rem;
+            border-bottom: 1px solid var(--border);
+        }
+
+        .panel-head-icon {
+            width: 34px; height: 34px;
+            background: rgba(124,58,237,0.12);
+            border: 1px solid rgba(124,58,237,0.2);
+            border-radius: 9px;
+            display: flex; align-items: center; justify-content: center;
+            font-size: 1rem;
+        }
+
+        .panel-head h2 {
+            font-size: 1.15rem;
+            font-weight: 700;
+            color: var(--text-white);
+        }
+
+        .panel-head .sub {
+            font-size: 0.75rem;
+            color: var(--text-muted);
+            font-weight: 400;
+            font-family: 'Inter', sans-serif;
+        }
+
+        /* ═══════════════════════════════════════════════════════════
+           FORM INPUTS
+        ═══════════════════════════════════════════════════════════ */
+        .field { display: flex; flex-direction: column; gap: 0.4rem; }
+
+        .field label {
+            font-size: 0.75rem;
+            font-weight: 600;
+            letter-spacing: 0.06em;
+            text-transform: uppercase;
+            color: var(--text-muted);
+        }
+
+        .field-row { display: grid; grid-template-columns: 1fr 1fr; gap: 1rem; }
+
+        @media (max-width: 520px) { .field-row { grid-template-columns: 1fr; } }
+
+        input[type="text"], textarea {
+            width: 100%;
+            background: rgba(255,255,255,0.035);
+            border: 1px solid var(--border);
+            border-radius: 10px;
+            padding: 0.75rem 0.9rem;
+            color: var(--text-white);
+            font-family: 'Inter', sans-serif;
+            font-size: 0.92rem;
+            transition: border-color 0.25s, box-shadow 0.25s, background 0.25s;
+            outline: none;
+        }
+
+        input[type="text"]::placeholder, textarea::placeholder { color: var(--text-faint); }
+
+        input[type="text"]:focus, textarea:focus {
+            border-color: var(--border-active);
+            background: rgba(124,58,237,0.05);
+            box-shadow: 0 0 0 3px rgba(124,58,237,0.1);
+        }
+
+        textarea {
+            resize: vertical;
+            min-height: 110px;
+            line-height: 1.6;
+        }
+
+        .char-count {
+            font-size: 0.72rem;
+            color: var(--text-muted);
+            text-align: right;
+            margin-top: 0.2rem;
+        }
+
+        /* ═══════════════════════════════════════════════════════════
+           VOICE MIC WIDGET
+        ═══════════════════════════════════════════════════════════ */
+        .mic-widget {
+            display: flex;
+            align-items: center;
+            gap: 1rem;
+            background: rgba(6,182,212,0.04);
+            border: 1px solid rgba(6,182,212,0.15);
+            border-radius: 12px;
+            padding: 0.75rem 1rem;
+            cursor: pointer;
+            transition: all 0.25s ease;
+            user-select: none;
+        }
+
+        .mic-widget:hover {
+            background: rgba(6,182,212,0.07);
+            border-color: rgba(6,182,212,0.3);
+        }
+
+        .mic-circle {
+            width: 36px; height: 36px;
+            border-radius: 50%;
+            background: var(--cyan);
+            display: flex; align-items: center; justify-content: center;
+            font-size: 1rem;
+            flex-shrink: 0;
+            transition: all 0.25s ease;
+            box-shadow: 0 0 12px rgba(6,182,212,0.3);
+        }
+
+        .mic-info { flex: 1; }
+
+        .mic-title {
+            font-size: 0.85rem;
+            font-weight: 600;
+            color: var(--text-soft);
+        }
+
+        .mic-hint {
+            font-size: 0.72rem;
+            color: var(--text-muted);
+        }
+
+        .mic-lang-badge {
+            font-size: 0.7rem;
+            font-weight: 700;
+            letter-spacing: 0.06em;
+            color: var(--cyan);
+            background: rgba(6,182,212,0.1);
+            border: 1px solid rgba(6,182,212,0.2);
+            padding: 0.2rem 0.5rem;
+            border-radius: 6px;
+        }
+
+        /* Recording state */
+        .mic-widget.recording {
+            border-color: rgba(244,63,94,0.4);
+            background: rgba(244,63,94,0.05);
+            animation: record-border 1.5s infinite;
+        }
+
+        @keyframes record-border {
+            0%, 100% { border-color: rgba(244,63,94,0.4); }
+            50% { border-color: rgba(244,63,94,0.7); }
+        }
+
+        .mic-widget.recording .mic-circle {
+            background: var(--rose);
+            animation: mic-pulse 1.2s infinite;
+            box-shadow: 0 0 0 0 rgba(244,63,94,0.5);
+        }
+
+        @keyframes mic-pulse {
+            0% { box-shadow: 0 0 0 0 rgba(244,63,94,0.5); }
+            70% { box-shadow: 0 0 0 14px rgba(244,63,94,0); }
+            100% { box-shadow: 0 0 0 0 rgba(244,63,94,0); }
+        }
+
+        .mic-widget.recording .mic-title { color: var(--rose); }
+
+        /* ═══════════════════════════════════════════════════════════
+           BUTTONS
+        ═══════════════════════════════════════════════════════════ */
+        .btn {
+            font-family: 'Outfit', sans-serif;
+            font-size: 0.95rem;
+            font-weight: 700;
+            padding: 0.85rem 1.5rem;
+            border-radius: 12px;
+            border: none;
+            cursor: pointer;
+            display: inline-flex;
+            align-items: center;
+            justify-content: center;
+            gap: 0.6rem;
+            transition: all 0.25s ease;
+            position: relative;
+            overflow: hidden;
+            letter-spacing: 0.01em;
+        }
+
+        .btn::before {
+            content: '';
+            position: absolute; inset: 0;
+            background: rgba(255,255,255,0.08);
+            opacity: 0;
+            transition: opacity 0.25s;
+        }
+
+        .btn:hover::before { opacity: 1; }
+        .btn:active { transform: scale(0.98); }
+
+        .btn-generate {
+            width: 100%;
+            background: var(--gradient-brand);
+            color: white;
+            font-size: 1.05rem;
+            padding: 1rem;
+            box-shadow: 0 4px 24px var(--violet-glow), 0 0 0 0 rgba(124,58,237,0);
+            transition: all 0.3s ease;
+        }
+
+        .btn-generate:hover {
+            transform: translateY(-2px);
+            box-shadow: 0 8px 36px rgba(124,58,237,0.35), 0 2px 8px rgba(0,0,0,0.3);
+        }
+
+        .btn-generate:disabled {
+            background: var(--bg-raised);
+            color: var(--text-muted);
+            cursor: not-allowed;
+            transform: none;
+            box-shadow: none;
+        }
+
+        .btn-outline {
+            background: rgba(255,255,255,0.04);
+            border: 1px solid var(--border);
+            color: var(--text-soft);
+            font-size: 0.85rem;
+            padding: 0.7rem 1rem;
+        }
+
+        .btn-outline:hover:not(:disabled) {
+            border-color: var(--border-hover);
+            background: rgba(255,255,255,0.07);
+            color: var(--text-white);
+        }
+
+        .btn-outline:disabled { opacity: 0.3; cursor: not-allowed; }
+
+        .btn-green {
+            background: rgba(16,185,129,0.12);
+            border: 1px solid rgba(16,185,129,0.25);
+            color: var(--green);
+        }
+
+        .btn-green:hover:not(:disabled) {
+            background: rgba(16,185,129,0.2);
+            border-color: rgba(16,185,129,0.4);
+        }
+
+        /* Loading spinner */
+        .spin { animation: spin 1s linear infinite; display: inline-block; }
+        @keyframes spin { to { transform: rotate(360deg); } }
+
+        /* ═══════════════════════════════════════════════════════════
+           QUICK TEMPLATES
+        ═══════════════════════════════════════════════════════════ */
+        .templates-label {
+            font-size: 0.72rem;
+            font-weight: 600;
+            letter-spacing: 0.08em;
+            text-transform: uppercase;
+            color: var(--text-muted);
+            margin-bottom: -0.5rem;
+        }
+
+        .templates-grid {
+            display: grid;
+            grid-template-columns: 1fr 1fr;
+            gap: 0.65rem;
+        }
+
+        .template-card {
+            background: rgba(255,255,255,0.025);
+            border: 1px solid var(--border);
+            border-radius: 10px;
+            padding: 0.75rem 0.9rem;
+            cursor: pointer;
+            transition: all 0.2s ease;
+            text-align: left;
+        }
+
+        .template-card:hover {
+            background: rgba(124,58,237,0.06);
+            border-color: rgba(124,58,237,0.3);
+            transform: translateY(-1px);
+        }
+
+        .template-card:active { transform: scale(0.98); }
+
+        .tpl-scheme {
+            font-size: 0.65rem;
+            font-weight: 700;
+            letter-spacing: 0.08em;
+            text-transform: uppercase;
+            color: var(--cyan);
+            margin-bottom: 0.2rem;
+        }
+
+        .tpl-title {
+            font-size: 0.82rem;
+            font-weight: 600;
+            color: var(--text-soft);
+            line-height: 1.3;
+        }
+
+        /* ═══════════════════════════════════════════════════════════
+           RIGHT PANEL — OUTPUT CONSOLE
+        ═══════════════════════════════════════════════════════════ */
+
+        /* Progress Stepper */
+        .stepper {
+            display: flex;
+            align-items: center;
+            gap: 0;
+            background: var(--bg-deep);
+            border: 1px solid var(--border);
+            border-radius: 12px;
+            overflow: hidden;
+        }
+
+        .step-item {
+            flex: 1;
+            display: flex;
+            align-items: center;
+            gap: 0.5rem;
+            padding: 0.7rem 0.9rem;
+            font-size: 0.78rem;
+            font-weight: 500;
+            color: var(--text-muted);
+            transition: all 0.4s ease;
+            position: relative;
+        }
+
+        .step-item:not(:last-child)::after {
+            content: '›';
+            position: absolute;
+            right: 0;
+            color: var(--text-faint);
+            font-size: 1rem;
+        }
+
+        .step-num {
+            width: 20px; height: 20px;
+            border-radius: 50%;
+            background: var(--bg-raised);
+            border: 1px solid var(--border);
+            display: flex; align-items: center; justify-content: center;
+            font-size: 0.65rem;
+            font-weight: 700;
+            flex-shrink: 0;
+            transition: all 0.4s ease;
+        }
+
+        .step-item.active {
+            color: var(--cyan);
+            background: rgba(6,182,212,0.05);
+        }
+
+        .step-item.active .step-num {
+            background: var(--cyan);
+            color: var(--bg-void);
+            border-color: var(--cyan);
+            box-shadow: 0 0 10px rgba(6,182,212,0.4);
+        }
+
+        .step-item.done {
+            color: var(--green);
+        }
+
+        .step-item.done .step-num {
+            background: var(--green);
+            color: var(--bg-void);
+            border-color: var(--green);
+        }
+
+        /* Department Badge */
+        .dept-badge-wrap {
+            display: none;
+        }
+
+        .dept-badge-wrap.visible {
+            display: flex;
+            align-items: center;
+            gap: 0.5rem;
+            padding: 0.6rem 0.9rem;
+            background: rgba(16,185,129,0.07);
+            border: 1px solid rgba(16,185,129,0.2);
+            border-radius: 10px;
+            font-size: 0.8rem;
+            animation: fadeInDown 0.4s ease;
+        }
+
+        .dept-arrow { color: var(--green); font-weight: 700; }
+        .dept-name { color: var(--text-soft); font-weight: 600; }
+
+        /* RTI Output Document */
+        .doc-console {
+            background: #08090f;
+            border: 1px solid var(--border);
+            border-radius: 14px;
+            padding: 1.5rem;
+            min-height: 420px;
+            max-height: 560px;
+            overflow-y: auto;
+            font-family: 'JetBrains Mono', monospace;
+            font-size: 0.875rem;
+            line-height: 1.65;
+            position: relative;
+            flex: 1;
+        }
+
+        /* Markdown-rendered RTI content styling */
+        .doc-console h1, .doc-console h2, .doc-console h3 {
+            font-family: 'Inter', sans-serif;
+            font-size: 0.9rem;
+            color: var(--cyan);
+            margin: 1.25rem 0 0.5rem;
+            font-weight: 700;
+        }
+
+        .doc-console h1:first-child, .doc-console h2:first-child { margin-top: 0; }
+
+        .doc-console p {
+            margin-bottom: 0.9rem;
+            color: #d1d5db;
+        }
+
+        .doc-console ul, .doc-console ol {
+            margin: 0 0 0.9rem 1.5rem;
+            color: #d1d5db;
+        }
+
+        .doc-console li { margin-bottom: 0.45rem; }
+
+        .doc-console strong {
+            color: var(--violet-light);
+            font-family: 'Inter', sans-serif;
+        }
+
+        .doc-console em { color: var(--amber); font-style: normal; font-weight: 600; }
+
+        .doc-console hr {
+            border: none;
+            border-top: 1px solid var(--border);
+            margin: 1rem 0;
+        }
+
+        .doc-console blockquote {
+            border-left: 3px solid var(--violet);
+            padding-left: 1rem;
+            color: var(--text-muted);
+            margin: 0.75rem 0;
+        }
+
+        /* Cursor blink */
+        .cursor-blink {
+            display: inline-block;
+            width: 2px;
+            height: 1.1em;
+            background: var(--cyan);
+            margin-left: 2px;
+            vertical-align: text-bottom;
+            animation: blink 0.9s infinite;
+        }
+
+        @keyframes blink { 0%,100% { opacity: 1; } 50% { opacity: 0; } }
+
+        /* Placeholder state */
+        .console-placeholder {
+            display: flex;
+            flex-direction: column;
+            align-items: center;
+            justify-content: center;
+            height: 100%;
+            min-height: 320px;
+            gap: 1rem;
+            color: var(--text-muted);
+            text-align: center;
+        }
+
+        .console-placeholder .icon { font-size: 3rem; opacity: 0.3; }
+        .console-placeholder p { font-size: 0.85rem; max-width: 260px; line-height: 1.5; font-family: 'Inter', sans-serif; }
+
+        /* Error block */
+        .error-block {
+            background: rgba(244,63,94,0.06);
+            border: 1px solid rgba(244,63,94,0.2);
+            border-radius: 10px;
+            padding: 1rem 1.25rem;
+            color: #fda4af;
+            font-family: 'Inter', sans-serif;
+            font-size: 0.85rem;
+            line-height: 1.5;
+        }
+
+        /* Action bar */
+        .action-bar {
+            display: grid;
+            grid-template-columns: 1fr 1fr 1fr;
+            gap: 0.75rem;
+        }
+
+        @media (max-width: 520px) { .action-bar { grid-template-columns: 1fr 1fr; } }
+
+        /* ═══════════════════════════════════════════════════════════
+           FOOTER
+        ═══════════════════════════════════════════════════════════ */
+        footer {
+            text-align: center;
+            padding: 1.5rem 2rem;
+            border-top: 1px solid var(--border);
+            color: var(--text-muted);
+            font-size: 0.78rem;
+        }
+
+        footer a { color: var(--violet-light); text-decoration: none; }
+
+        /* ═══════════════════════════════════════════════════════════
+           ANIMATIONS & UTILITIES
+        ═══════════════════════════════════════════════════════════ */
+        .fade-in { animation: fadeInDown 0.5s ease; }
+
+        .divider {
+            height: 1px;
+            background: var(--border);
+            width: 100%;
+        }
+    </style>
+</head>
+<body>
+
+<!-- ── ANNOUNCE BAR ──────────────────────────────────────────── -->
+<div class="announce-bar">
+    🏆 Scaler × Meta AI PyTorch Hackathon 2026 &nbsp;|&nbsp; Team DLC &nbsp;|&nbsp; GovGPT — RTI in 60 Seconds
+</div>
+
+<!-- ── NAVIGATION ────────────────────────────────────────────── -->
+<nav>
+    <div class="nav-brand">
+        <div class="brand-icon">⚖️</div>
+        <span class="brand-name">GovGPT</span>
+        <span class="brand-tagline">RTI Streamer</span>
+    </div>
+    <div class="nav-stats">
+        <div class="nav-stat">
+            <span class="nav-stat-val" id="counter-crore">70Cr</span>
+            <span class="nav-stat-label">Unheard Citizens</span>
+        </div>
+        <div class="nav-stat">
+            <span class="nav-stat-val">60s</span>
+            <span class="nav-stat-label">RTI Generated</span>
+        </div>
+        <div class="nav-stat">
+            <span class="nav-stat-val" id="counter-dept">900+</span>
+            <span class="nav-stat-label">Departments Mapped</span>
+        </div>
+    </div>
+</nav>
+
+<!-- ── HERO ──────────────────────────────────────────────────── -->
+<section class="hero">
+    <div class="hero-badge">⚡ AI-Powered • RAG-Grounded • Section 6 Compliant</div>
+    <h1>File RTI in <span class="highlight">60 Seconds</span><br>in Hindi or English</h1>
+    <p class="hero-sub">
+        Speak or type your government problem. GovGPT identifies the correct department
+        from 900+ authorities, retrieves official scheme rules, and writes a legally binding
+        RTI application — ready to print and post.
+    </p>
+    <div class="impact-row">
+        <div class="impact-item">
+            <span class="impact-number">88%</span>
+            <span class="impact-desc">Rural Indians unaware of RTI</span>
+        </div>
+        <div class="impact-item">
+            <span class="impact-number">₹0</span>
+            <span class="impact-desc">Cost to citizen</span>
+        </div>
+        <div class="impact-item">
+            <span class="impact-number">30</span>
+            <span class="impact-desc">Days legal deadline</span>
+        </div>
+        <div class="impact-item">
+            <span class="impact-number">10+</span>
+            <span class="impact-desc">Schemes supported</span>
+        </div>
+    </div>
+</section>
+
+<!-- ── WORKSPACE ─────────────────────────────────────────────── -->
+<div class="workspace">
+
+    <!-- LEFT PANEL: INPUT ──────────────────────────────────────── -->
+    <div class="panel" id="input-panel">
+        <div class="panel-head">
+            <div class="panel-head-icon">📝</div>
+            <div>
+                <h2>Your Details &amp; Problem</h2>
+                <span class="sub">Fill in your info or use a template below</span>
+            </div>
+        </div>
+
+        <!-- Name & Address -->
+        <div class="field-row">
+            <div class="field">
+                <label for="inp-name">Full Name</label>
+                <input type="text" id="inp-name" placeholder="e.g. Ramesh Kumar" autocomplete="off">
+            </div>
+            <div class="field">
+                <label for="inp-address">Postal Address</label>
+                <input type="text" id="inp-address" placeholder="Village, District, State">
+            </div>
+        </div>
+
+        <!-- Problem Description -->
+        <div class="field">
+            <label for="inp-problem">Describe Your Problem (Hindi / English / Hinglish)</label>
+            <textarea id="inp-problem" placeholder="e.g. 'Mera PM Kisan ka 2000 rupaye ka kist pichle 3 mahine se nahi aaya. Aadhaar linked hai phir bhi payment nahi aayi.'" oninput="updateCharCount()"></textarea>
+            <div class="char-count" id="char-count">0 / 500 characters</div>
+        </div>
+
+        <!-- Voice Input -->
+        <div class="mic-widget" id="mic-widget">
+            <div class="mic-circle" id="mic-circle">🎙️</div>
+            <div class="mic-info">
+                <div class="mic-title" id="mic-title">Tap to Speak Your Problem</div>
+                <div class="mic-hint">Voice input in Hindi (Chrome only)</div>
+            </div>
+            <span class="mic-lang-badge">हिंदी</span>
+        </div>
+
+        <!-- Generate Button -->
+        <button class="btn btn-generate" id="btn-generate">
+            ✨ Generate RTI Application
+        </button>
+
+        <div class="divider"></div>
+
+        <!-- Quick Templates -->
+        <div class="templates-label">⚡ Quick Templates — tap to fill</div>
+        <div class="templates-grid">
+
+            <div class="template-card" onclick="fillTemplate('Ramesh Kumar','Village Bhainsa, Hisar, Haryana','PM Kisan Samman Nidhi ke teen instalments pichle 9 mahine se bank account me credit nahi hue hain. Aadhaar aur bank account link hai.')">
+                <div class="tpl-scheme">PM Kisan</div>
+                <div class="tpl-title">Payment not received for 9 months</div>
+            </div>
+
+            <div class="template-card" onclick="fillTemplate('Kamla Devi','Gram Panchayat Bilara, Pali, Rajasthan','Hamare Fair Price Shop dealer ne pichle 2 mahine se ration card par chawal aur gehu dene se mana kar diya hai.')">
+                <div class="tpl-scheme">Ration Card</div>
+                <div class="tpl-title">Dealer denying food grains</div>
+            </div>
+
+            <div class="template-card" onclick="fillTemplate('Suresh Verma','Ward 12, Indore, Madhya Pradesh','Ayushman Bharat PM-JAY card ke liye apply kiya tha. SECC list mein naam hai phir bhi card reject ho gaya. Koi reason nahi bataya.')">
+                <div class="tpl-scheme">Ayushman Bharat</div>
+                <div class="tpl-title">Card rejected without reason</div>
+            </div>
+
+            <div class="template-card" onclick="fillTemplate('Rajesh Yadav','Block Motipur, Muzaffarpur, Bihar','MGNREGA mein kaam kiya par 3 mahine se wage payment nahi aayi. Gram Panchayat ne koi jawab nahi diya.')">
+                <div class="tpl-scheme">MGNREGA</div>
+                <div class="tpl-title">Wages pending for 3 months</div>
+            </div>
+
+            <div class="template-card" onclick="fillTemplate('Savitri Devi','Gram Pachha, Barabanki, Uttar Pradesh','PM Awas Yojana Gramin ke liye select hua tha. 2 saal ho gaye hain, 2nd installment abhi tak nahi mili. BDO office ne koi information nahi di.')">
+                <div class="tpl-scheme">PM Awas</div>
+                <div class="tpl-title">2nd instalment not released</div>
+            </div>
+
+            <div class="template-card" onclick="fillTemplate('Mohammed Ali','15-B Lajpat Nagar, New Delhi','My passport application submitted 6 months ago is still pending at PSK Delhi. No update given despite multiple calls.')">
+                <div class="tpl-scheme">Passport</div>
+                <div class="tpl-title">Application pending 6 months</div>
+            </div>
+
+        </div>
+    </div>
+
+    <!-- RIGHT PANEL: OUTPUT ─────────────────────────────────────── -->
+    <div class="panel" id="output-panel">
+        <div class="panel-head">
+            <div class="panel-head-icon">📄</div>
+            <div>
+                <h2>Generated RTI Application</h2>
+                <span class="sub">Legal Section 6 document — streams live</span>
+            </div>
+        </div>
+
+        <!-- Progress Stepper -->
+        <div class="stepper">
+            <div class="step-item" id="step-1">
+                <div class="step-num">1</div>
+                <span>Route Dept.</span>
+            </div>
+            <div class="step-item" id="step-2">
+                <div class="step-num">2</div>
+                <span>Query RAG</span>
+            </div>
+            <div class="step-item" id="step-3">
+                <div class="step-num">3</div>
+                <span>Draft RTI</span>
+            </div>
+            <div class="step-item" id="step-4">
+                <div class="step-num">✓</div>
+                <span>Complete</span>
+            </div>
+        </div>
+
+        <!-- Department Routing Badge -->
+        <div class="dept-badge-wrap" id="dept-badge">
+            <span class="dept-arrow">→</span>
+            <span class="dept-name" id="dept-text">Identifying department...</span>
+        </div>
+
+        <!-- RTI Output Console -->
+        <div class="doc-console" id="doc-console">
+            <div class="console-placeholder" id="console-placeholder">
+                <div class="icon">⚖️</div>
+                <p>Your RTI application will stream here live.<br>
+                Fill in the form on the left and click <strong>Generate</strong>.</p>
+            </div>
+            <div id="rti-output" style="display:none"></div>
+        </div>
+
+        <!-- Action Bar -->
+        <div class="action-bar">
+            <button class="btn btn-outline" id="btn-copy" disabled onclick="copyRTI()">
+                📋 Copy Text
+            </button>
+            <button class="btn btn-green" id="btn-pdf" disabled onclick="downloadPDF()">
+                ⬇️ Download PDF
+            </button>
+            <button class="btn btn-outline" id="btn-wa" disabled onclick="shareWhatsApp()">
+                💬 WhatsApp
+            </button>
+        </div>
+    </div>
+</div>
+
+<!-- ── FOOTER ─────────────────────────────────────────────────── -->
+<footer>
+    <p>
+        <strong>GovGPT</strong> — Built by Team DLC &nbsp;|&nbsp;
+        Kartik Gupta + Team &nbsp;|&nbsp; B.Sc. Physical Science with CS, Delhi University &nbsp;|&nbsp;
+        <a href="#">Scaler × Meta AI PyTorch Hackathon 2026</a>
+    </p>
+    <p style="margin-top:0.4rem; color: var(--text-faint);">
+        Powered by Gemini 1.5 Pro · LangChain RAG · ChromaDB · Section 6, RTI Act 2005
+    </p>
+</footer>
+
+
+<!-- ═══════════════════════════════════════════════════════════════
+     JAVASCRIPT
+═══════════════════════════════════════════════════════════════ -->
+<script>
+// Configure marked.js
+marked.setOptions({ breaks: true, gfm: true });
+
+// ── STATE ──────────────────────────────────────────────────────
+let rtiRawText = '';
+let isGenerating = false;
+
+// ── DOM REFS ───────────────────────────────────────────────────
+const $ = id => document.getElementById(id);
+const inpName     = $('inp-name');
+const inpAddress  = $('inp-address');
+const inpProblem  = $('inp-problem');
+const btnGenerate = $('btn-generate');
+const btnCopy     = $('btn-copy');
+const btnPdf      = $('btn-pdf');
+const btnWa       = $('btn-wa');
+const docConsole  = $('doc-console');
+const rtiOutput   = $('rti-output');
+const placeholder = $('console-placeholder');
+const deptBadge   = $('dept-badge');
+const deptText    = $('dept-text');
+const charCount   = $('char-count');
+
+// Steps
+const steps = [1,2,3,4].map(i => $(`step-${i}`));
+
+// ── CHAR COUNT ─────────────────────────────────────────────────
+function updateCharCount() {
+    const len = inpProblem.value.length;
+    charCount.textContent = `${len} / 500 characters`;
+    charCount.style.color = len > 400 ? '#f59e0b' : 'var(--text-muted)';
+}
+
+// ── TEMPLATE FILLER ────────────────────────────────────────────
+function fillTemplate(name, address, text) {
+    inpName.value = name;
+    inpAddress.value = address;
+    inpProblem.value = text;
+    updateCharCount();
+    // Smooth scroll to generate button on mobile
+    if (window.innerWidth < 1100) {
+        $('output-panel').scrollIntoView({ behavior: 'smooth' });
+    }
+}
+
+// ── STEP MANAGER ───────────────────────────────────────────────
+function setStep(active) {
+    steps.forEach((s, i) => {
+        s.classList.remove('active', 'done');
+        if (i < active - 1) s.classList.add('done');
+        else if (i === active - 1) s.classList.add('active');
+    });
+}
+
+function allStepsDone() {
+    steps.forEach(s => { s.classList.remove('active'); s.classList.add('done'); });
+}
+
+function resetSteps() {
+    steps.forEach(s => s.classList.remove('active', 'done'));
+}
+
+// ── VOICE INPUT ────────────────────────────────────────────────
+const micWidget = $('mic-widget');
+const micCircle = $('mic-circle');
+const micTitle  = $('mic-title');
+let recognition;
+
+if ('webkitSpeechRecognition' in window || 'SpeechRecognition' in window) {
+    const SR = window.SpeechRecognition || window.webkitSpeechRecognition;
+    recognition = new SR();
+    recognition.continuous = false;
+    recognition.interimResults = true;
+    recognition.lang = 'hi-IN';
+
+    recognition.onstart = () => {
+        micWidget.classList.add('recording');
+        micCircle.textContent = '🔴';
+        micTitle.textContent = 'सुन रहा है... (Listening)';
+    };
+
+    recognition.onresult = (event) => {
+        let interim = '', final = '';
+        for (let i = event.resultIndex; i < event.results.length; i++) {
+            const t = event.results[i][0].transcript;
+            if (event.results[i].isFinal) final += t;
+            else interim += t;
+        }
+        inpProblem.value = (final || interim);
+        updateCharCount();
+    };
+
+    recognition.onerror = (e) => {
+        console.error('Speech error:', e);
+        stopMic();
+        micTitle.textContent = 'Error. Tap to try again.';
+    };
+
+    recognition.onend = stopMic;
+
+    function stopMic() {
+        micWidget.classList.remove('recording');
+        micCircle.textContent = '🎙️';
+        micTitle.textContent = 'Tap to Speak Your Problem';
+    }
+
+    micWidget.addEventListener('click', () => {
+        if (micWidget.classList.contains('recording')) {
+            recognition.stop();
+        } else {
+            recognition.start();
+        }
+    });
+} else {
+    micWidget.style.opacity = '0.45';
+    micWidget.style.cursor = 'not-allowed';
+    micTitle.textContent = 'Voice requires Google Chrome browser';
+    micWidget.onclick = null;
+}
+
+// ── GENERATE / SSE STREAM ──────────────────────────────────────
+btnGenerate.addEventListener('click', generateRTI);
+
+function generateRTI() {
+    const problem = inpProblem.value.trim();
+    const name    = inpName.value.trim();
+    const address = inpAddress.value.trim();
+
+    if (!problem) {
+        inpProblem.focus();
+        inpProblem.style.borderColor = 'var(--rose)';
+        setTimeout(() => inpProblem.style.borderColor = '', 2000);
+        return;
+    }
+
+    // UI: loading state
+    isGenerating = true;
+    rtiRawText = '';
+    btnGenerate.disabled = true;
+    btnGenerate.textContent = '⏳ Generating...';
+    btnCopy.disabled = true;
+    btnPdf.disabled = true;
+    btnWa.disabled = true;
+
+    // Show output area
+    placeholder.style.display = 'none';
+    rtiOutput.style.display = 'block';
+    rtiOutput.innerHTML = '<span class="cursor-blink"></span>';
+    docConsole.scrollTop = 0;
+
+    // Show department badge
+    deptBadge.classList.add('visible');
+    deptText.textContent = 'Routing to correct department...';
+
+    // Reset steps
+    resetSteps();
+    setStep(1);
+
+    // Step timers
+    setTimeout(() => setStep(2), 700);
+    setTimeout(() => setStep(3), 1500);
+
+    // Build SSE connection
+    const params = new URLSearchParams({ problem, name, address });
+    const es = new EventSource(`/stream?${params}`);
+    let firstToken = true;
+
+    es.onmessage = (event) => {
+        if (event.data === '[DONE]') {
+            es.close();
+            finishGeneration();
+            return;
+        }
+
+        try {
+            const token = JSON.parse(event.data);
+
+            // Detect department from first few tokens
+            if (firstToken) {
+                firstToken = false;
+                setStep(3);
+                // Try to parse department from early output
+                setTimeout(() => detectDepartment(), 1500);
+            }
+
+            rtiRawText += token;
+
+            // Render markdown with live cursor
+            rtiOutput.innerHTML = marked.parse(rtiRawText) + '<span class="cursor-blink"></span>';
+
+            // Auto-scroll
+            docConsole.scrollTop = docConsole.scrollHeight;
+
+        } catch (err) {
+            console.error('Parse error:', err);
+        }
+    };
+
+    es.onerror = () => {
+        es.close();
+        if (!rtiRawText) {
+            rtiOutput.innerHTML = `<div class="error-block">
+                ❌ <strong>Connection failed.</strong> Please check that:<br>
+                1. <code>app.py</code> is running (terminal shows Flask server)<br>
+                2. Your <code>.env</code> file has a valid <code>GEMINI_API_KEY</code><br>
+                3. You are on <strong>http://localhost:5000</strong>
+            </div>`;
+        }
+        finishGeneration();
+    };
+}
+
+function detectDepartment() {
+    // Look for "CPIO" or "Ministry" or "Department" keyword in first 300 chars
+    const sample = rtiRawText.slice(0, 400).toLowerCase();
+    let dept = '';
+
+    if (sample.includes('agriculture') || sample.includes('pm kisan') || sample.includes('kisan'))
+        dept = 'Department of Agriculture & Farmers Welfare';
+    else if (sample.includes('health') || sample.includes('nha') || sample.includes('ayushman'))
+        dept = 'National Health Authority';
+    else if (sample.includes('rural development') || sample.includes('bdo') || sample.includes('mgnrega'))
+        dept = 'Ministry of Rural Development / BDO';
+    else if (sample.includes('food') || sample.includes('ration') || sample.includes('pds'))
+        dept = 'Department of Food & Public Distribution';
+    else if (sample.includes('petroleum') || sample.includes('lpg') || sample.includes('ujjwala'))
+        dept = 'Ministry of Petroleum & Natural Gas';
+    else if (sample.includes('passport') || sample.includes('external affairs'))
+        dept = 'Ministry of External Affairs';
+    else if (sample.includes('railway') || sample.includes('drm'))
+        dept = 'Ministry of Railways';
+    else if (sample.includes('housing') || sample.includes('awas'))
+        dept = 'Ministry of Housing & Urban Affairs';
+    else if (sample.includes('education') || sample.includes('scholarship'))
+        dept = 'Ministry of Education';
+
+    if (dept) {
+        deptText.textContent = dept;
+    }
+}
+
+function finishGeneration() {
+    isGenerating = false;
+    allStepsDone();
+    btnGenerate.disabled = false;
+    btnGenerate.textContent = '✨ Generate RTI Application';
+
+    if (rtiRawText && !rtiRawText.startsWith('❌')) {
+        btnCopy.disabled = false;
+        btnPdf.disabled = false;
+        btnWa.disabled = false;
+        // Remove cursor
+        rtiOutput.innerHTML = marked.parse(rtiRawText);
+    }
+}
+
+// ── COPY TO CLIPBOARD ──────────────────────────────────────────
+function copyRTI() {
+    if (!rtiRawText) return;
+    navigator.clipboard.writeText(rtiRawText).then(() => {
+        btnCopy.textContent = '✅ Copied!';
+        setTimeout(() => btnCopy.textContent = '📋 Copy Text', 2000);
+    });
+}
+
+// ── DOWNLOAD PDF ───────────────────────────────────────────────
+function downloadPDF() {
+    if (!rtiRawText) return;
+
+    const { jsPDF } = window.jspdf;
+    const doc = new jsPDF('p', 'mm', 'a4');
+    const W = doc.internal.pageSize.getWidth();   // 210
+    const H = doc.internal.pageSize.getHeight();  // 297
+    const M = 18;   // margin
+    const CW = W - M * 2; // content width
+
+    // ── Page border ──
+    doc.setDrawColor(180, 180, 200);
+    doc.setLineWidth(0.4);
+    doc.rect(10, 10, W - 20, H - 20);
+
+    // ── Letterhead background ──
+    doc.setFillColor(245, 245, 252);
+    doc.rect(10, 10, W - 20, 28, 'F');
+
+    // ── Top accent bar ──
+    doc.setFillColor(90, 50, 180);
+    doc.rect(10, 10, W - 20, 3.5, 'F');
+
+    // ── Title ──
+    doc.setFont('helvetica', 'bold');
+    doc.setFontSize(11.5);
+    doc.setTextColor(30, 30, 60);
+    doc.text('APPLICATION UNDER THE RIGHT TO INFORMATION ACT, 2005', W / 2, 22, { align: 'center' });
+
+    // ── Sub-title ──
+    doc.setFont('helvetica', 'italic');
+    doc.setFontSize(8);
+    doc.setTextColor(100, 100, 130);
+    doc.text('Section 6(1) — Generated by GovGPT AI Legal Assistant', W / 2, 27.5, { align: 'center' });
+
+    // ── Separator line ──
+    doc.setDrawColor(120, 80, 200);
+    doc.setLineWidth(0.6);
+    doc.line(M, 38, W - M, 38);
+
+    // ── Clean plain text from markdown ──
+    let plain = rtiRawText
+        .replace(/\*\*(.*?)\*\*/g, '$1')
+        .replace(/\*(.*?)\*/g, '$1')
+        .replace(/#{1,6}\s+(.*)/g, '\n$1')
+        .replace(/---+/g, '─'.repeat(60))
+        .replace(/━+/g, '─'.repeat(60))
+        .replace(/`(.*?)`/g, '$1')
+        .trim();
+
+    doc.setFont('helvetica', 'normal');
+    doc.setFontSize(10);
+    doc.setTextColor(40, 40, 60);
+
+    const lines = doc.splitTextToSize(plain, CW);
+    let y = 44;
+    const LH = 5.8;
+
+    lines.forEach(line => {
+        if (y > H - 22) {
+            doc.addPage();
+            // Border on new page
+            doc.setDrawColor(180, 180, 200);
+            doc.setLineWidth(0.4);
+            doc.rect(10, 10, W - 20, H - 20);
+            y = 22;
+        }
+
+        const trimmed = line.trim();
+        const isBold = /^(To,|From:|Subject:|Date:|Place:|Declaration|Questions?:|Yours|Respectfully|Sir\/|Madam)/.test(trimmed);
+
+        if (isBold) {
+            doc.setFont('helvetica', 'bold');
+            doc.setTextColor(60, 40, 130);
+        } else {
+            doc.setFont('helvetica', 'normal');
+            doc.setTextColor(40, 40, 60);
+        }
+
+        doc.text(line, M, y);
+        y += LH;
+    });
+
+    // ── Footer on last page ──
+    doc.setFont('helvetica', 'italic');
+    doc.setFontSize(7.5);
+    doc.setTextColor(150, 150, 170);
+    doc.text(`Generated by GovGPT — ${new Date().toLocaleDateString('en-IN')} | RTI Act 2005, Section 6(1)`, W / 2, H - 13, { align: 'center' });
+
+    // ── Bottom accent ──
+    doc.setFillColor(90, 50, 180);
+    doc.rect(10, H - 11, W - 20, 1.5, 'F');
+
+    // Save
+    const fileName = `RTI_${(inpName.value.trim() || 'Citizen').replace(/\s+/g,'_')}_${Date.now()}.pdf`;
+    doc.save(fileName);
+}
+
+// ── WHATSAPP SHARE ─────────────────────────────────────────────
+function shareWhatsApp() {
+    const name = inpName.value.trim() || 'a citizen';
+    const snippet = rtiRawText.slice(0, 300).replace(/[#*]/g, '').trim();
+    const msg = `📜 *GovGPT — RTI Application Generated*\n\nApplicant: *${name}*\n\n${snippet}...\n\n_Generated using GovGPT — RTI in 60 seconds. Powered by Gemini AI._`;
+    window.open(`https://api.whatsapp.com/send?text=${encodeURIComponent(msg)}`, '_blank');
+}
+
+// ── STAT COUNTER ANIMATION ─────────────────────────────────────
+function animateCounter(el, target, suffix, duration) {
+    let start = 0;
+    const step = Math.ceil(target / (duration / 16));
+    const timer = setInterval(() => {
+        start = Math.min(start + step, target);
+        el.textContent = start + suffix;
+        if (start >= target) clearInterval(timer);
+    }, 16);
+}
+
+// Run on load
+window.addEventListener('load', () => {
+    // Don't animate — keep static for professional look
+    // animateCounter($('counter-crore'), 70, 'Cr+', 1200);
+});
+
+</script>
+</body>
+</html>

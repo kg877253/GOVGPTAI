@@ -1,0 +1,42 @@
+AYUSHMAN BHARAT PRADHAN MANTRI JAN AROGYA YOJANA (AB-PMJAY)
+Nodal Ministry: National Health Authority (NHA), Ministry of Health and Family Welfare, Government of India.
+
+SCHEME OVERVIEW:
+Ayushman Bharat PM-JAY is the largest health assurance scheme in the world which aims to provide a health cover of Rs. 5 lakhs per family per year for secondary and tertiary care hospitalization to over 12 crore poor and vulnerable families (approximately 55 crore beneficiaries).
+
+BENEFITS:
+1. Health cover of Rs. 5,00,000 per family per year.
+2. The cover includes all expenses incurred on treatment, medical consultation, pre-hospitalization, medicines, diagnostic services, non-intensive and intensive care services, and post-hospitalization follow-up for up to 15 days.
+3. The benefits under the scheme are cashless and paperless at all public hospitals and empanelled private hospitals.
+4. There is no restriction on family size, age, or gender. Pre-existing conditions are covered from day one.
+
+ELIGIBILITY CRITERIA:
+PM-JAY is an entitlement-based scheme. Households are identified based on the deprivation and occupational criteria of Socio-Economic Caste Census 2011 (SECC 2011) for rural and urban areas:
+1. Rural Deprivation Categories:
+   a. D1: Households with only one room with kucha walls and kucha roof.
+   b. D2: Households with no adult member between age 16 to 59.
+   c. D3: Female-headed households with no adult male member between age 16 to 59.
+   d. D4: Households with disabled member and no able-bodied adult member.
+   e. D5: Landless households deriving major part of their income from manual casual labour.
+   f. Automatically included: Destitute/living on alms, manual scavenger households, primitive tribal groups, legally released bonded labour.
+2. Urban Occupational Categories:
+   - 11 occupational categories of workers are eligible (e.g. Rag pickers, Beggars, Domestic workers, Street vendors, Cobblers, Construction workers, Plumbers, Painters, Welder, Security guards, Coolies, Rickshaw pullers, Shop workers, etc.).
+
+EXCLUSIONS (Who is NOT eligible):
+Families meeting any of the following criteria are excluded:
+1. Owning motorized 2/3/4 wheeler or fishing boat.
+2. Owning mechanized 3/4 wheeler agricultural equipment.
+3. Having an Aadhaar-linked Kisan Credit Card with limit above Rs. 50,000.
+4. Household member is a government employee.
+5. Households with non-agricultural enterprises registered with the government.
+6. Any member of the family earning more than Rs. 10,000 per month.
+7. Paying income tax or professional tax.
+8. Owning a house with 3 or more rooms with pucca walls and roof.
+9. Owning land of more than 5 acres (irrigated) or having land with at least one irrigation equipment.
+
+RTI & COMPLAINTS FOR REJECTION:
+If an eligible individual's family is on the SECC 2011 list but their Ayushman Golden Card is rejected, delayed, or their name was wrongly deleted, they can file an RTI. The application should be sent to the CPIO, National Health Authority (NHA), Connaught Place, New Delhi.
+Common queries under RTI for Ayushman Bharat include:
+- Status of PMJAY Card approval for a specific beneficiary ID/Aadhaar.
+- Reason for rejection of card creation despite household matching SECC criteria.
+- Details of empanelled hospitals in a specific district and available packages.

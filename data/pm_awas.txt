@@ -1,0 +1,35 @@
+PRADHAN MANTRI AWAS YOJANA - GRAMIN (PMAY-G)
+Nodal Ministry: Ministry of Rural Development, Government of India.
+
+SCHEME OVERVIEW:
+PMAY-G aims to provide a pucca house with basic amenities to all houseless householders and those households living in dilapidated and kutcha houses in rural areas.
+
+BENEFITS:
+1. Financial assistance of Rs. 1,20,000 in plain areas and Rs. 1,30,000 in hilly areas, difficult areas, and Integrated Action Plan (IAP) districts.
+2. The beneficiary is also entitled to 90/95 person-days of unskilled labor support under MGNREGA for constructing the house.
+3. Financial assistance of Rs. 12,000 for constructing a toilet through Swachh Bharat Mission (SBM-G) or MGNREGA.
+4. Optional loan up to Rs. 70,000 from financial institutions at subsidized interest rates.
+5. Minimum size of the house is 25 square meters (including kitchen space).
+
+ELIGIBILITY & TARGETING:
+1. Targeting is based on the Socio-Economic Caste Census 2011 (SECC 2011) data, verified by Gram Sabhas.
+2. Priority lists are prepared automatically by the system.
+3. Priority categories: Houseless families, households with zero, one, or two rooms with kutcha wall and kutcha roof, female-headed households with no adult male member, households with no adult member between age 16-59, SC/ST, bonded labor released, and non-SC/ST minority households.
+
+EXCLUSIONS (Who is NOT eligible):
+Households possessing any of the following parameters are excluded:
+1. Motorized 2/3/4 wheeler or fishing boat.
+2. Mechanized 3/4 wheeler agricultural equipment.
+3. Kisan Credit Card (KCC) with limit equal to or greater than Rs. 50,000.
+4. Any household member who is a government employee.
+5. Monthly income of any member is greater than Rs. 10,000.
+6. Paying income tax or professional tax.
+7. Owning a landline phone or refrigerator.
+8. Owning land of more than 2.5 acres (irrigated) with irrigation equipment.
+
+RTI & COMPLAINTS FOR PENDING ALLOTMENT:
+Many citizens face issues where they are on the SECC priority list (Awas Plus list) but their funds are blocked, delayed by officials, or their name is removed without explanation. They can file an RTI to demand accountability. The application should be addressed to the Block Development Officer (BDO) at the block level or SPIO of the District Rural Development Agency (DRDA), or the CPIO, Ministry of Rural Development, New Delhi.
+Common queries under RTI for PMAY-G include:
+- Current rank of the beneficiary on the Awas Plus priority list.
+- Date of sanction of the house and release details of the first, second, or third instalment.
+- Reasons for the withholding of funds or delay in physical verification of construction.

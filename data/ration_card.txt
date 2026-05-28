@@ -1,0 +1,36 @@
+NATIONAL FOOD SECURITY ACT (NFSA) - RATION CARD & FOOD GRAIN DISTRIBUTION
+Nodal Ministry: Department of Food and Public Distribution, Ministry of Consumer Affairs, Food and Public Distribution, Government of India.
+
+SCHEME OVERVIEW:
+Under the NFSA 2013, up to 75% of the rural population and 50% of the urban population are covered for receiving subsidized food grains under the Targeted Public Distribution System (TPDS).
+
+BENEFITS & SCHEME CATEGORIES:
+1. Antyodaya Anna Yojana (AAY) Households:
+   - Covers the poorest of the poor households.
+   - Entitled to receive 35 kg of food grains per family per month.
+   - Prices: Rice at Rs. 3/kg, Wheat at Rs. 2/kg, Coarse grains at Rs. 1/kg (Currently made free under the Pradhan Mantri Garib Kalyan Anna Yojana - PMGKAY).
+2. Priority Households (PHH):
+   - Households identified by states based on specific exclusion/inclusion criteria.
+   - Entitled to receive 5 kg of food grains per person per month.
+   - Same subsidized rates apply (currently free under PMGKAY).
+
+ELIGIBILITY CRITERIA:
+1. Citizens must apply for a Ration Card in their respective State Food & Civil Supplies Department.
+2. Rural and urban coverage parameters are determined by the Planning Commission based on Census data, but state governments determine the specific household selection criteria.
+3. Priority categories typically include landless laborers, marginal farmers, rural artisans, daily wage earners, widows, terminally ill persons, disabled persons, and female-headed households.
+
+EXCLUSIONS (Varies slightly by state, typical parameters):
+1. Any member of the family is a government employee (regular, state or central).
+2. Family owns a four-wheeler.
+3. Family owns land exceeding specific acreage (e.g. 5 acres in most states).
+4. Monthly income of the household exceeds state thresholds (typically Rs. 10,000 to Rs. 15,000).
+5. Paying Income Tax.
+6. Owning commercial or residential space above a certain size in urban areas.
+
+RTI & COMPLAINTS FOR CORRUPTION / DELAY:
+Ration distribution is prone to dealer corruption, short-measuring, non-issue of cards, or illegal cancellation. Under Section 6 of the RTI Act 2005, citizens can request details from the Assistant Commissioner (Food & Civil Supplies) or District Supply Officer (DSO) at the district level, or the Block Ration Officer.
+Common queries under RTI for Ration Cards include:
+- Reasons for delay in issuing a new Ration Card or adding a family member.
+- Daily sale registers and stock register copies of the specific Fair Price Shop (FPS) dealer.
+- Visual inspection reports of the FPS shop by the supply inspector.
+- Details of grain allocated vs grain distributed by the FPS dealer for specific months.

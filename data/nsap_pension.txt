@@ -1,0 +1,44 @@
+NATIONAL SOCIAL ASSISTANCE PROGRAMME (NSAP) — OLD AGE PENSION, WIDOW PENSION, DISABILITY PENSION
+Nodal Ministry: Ministry of Rural Development, Government of India.
+
+SCHEME OVERVIEW:
+NSAP is a centrally-sponsored scheme that provides financial assistance to the elderly, widows, and persons with disabilities belonging to Below Poverty Line (BPL) households. It is implemented through four components.
+
+FOUR SUB-SCHEMES:
+1. INDIRA GANDHI NATIONAL OLD AGE PENSION SCHEME (IGNOAPS):
+   - For persons aged 60 years and above belonging to BPL households.
+   - Pension: Rs. 200/month for 60-79 years; Rs. 500/month for 80 years and above.
+   - State governments typically add additional amounts on top of the central share.
+
+2. INDIRA GANDHI NATIONAL WIDOW PENSION SCHEME (IGNWPS):
+   - For widows aged 40-79 years belonging to BPL households.
+   - Pension: Rs. 300/month (central share).
+
+3. INDIRA GANDHI NATIONAL DISABILITY PENSION SCHEME (IGNDPS):
+   - For persons aged 18-79 years with severe/multiple disabilities belonging to BPL households.
+   - Pension: Rs. 300/month (central share).
+
+4. NATIONAL FAMILY BENEFIT SCHEME (NFBS):
+   - Lump sum assistance of Rs. 20,000 to BPL households on death of primary breadwinner aged 18-59.
+
+ELIGIBILITY:
+1. Must belong to a BPL household as defined by the State Government.
+2. Age proof and Disability Certificate (for disability pension) required.
+3. Death Certificate of husband required for widow pension.
+4. Must not be receiving any other pension from Central or State Government above Rs. 2,000/month.
+
+APPLICATION PROCESS:
+1. Application submitted to Gram Panchayat (rural) or Urban Local Body (urban).
+2. Panchayat forwards to Block Development Officer (BDO) / Child Development Project Officer.
+3. State Government approves and adds to DBT (Direct Benefit Transfer) list.
+4. Pension credited directly to Aadhaar-linked bank account.
+
+RTI & COMPLAINTS FOR PENSION DELAY/STOPPAGE:
+Many beneficiaries find their pensions stopped without notice, or new applications stuck indefinitely. RTI is the fastest way to demand answers.
+The application should be sent to: SPIO, Block Development Officer (BDO), [Block Name, District] OR CPIO, Ministry of Rural Development, Krishi Bhawan, New Delhi – 110001.
+Common queries under RTI for NSAP:
+- Provide the date on which pension under IGNOAPS/IGNWPS was sanctioned and the date from which payments began for applicant [Name], [Village].
+- Provide the reason in writing with supporting file notes for the stoppage of pension payment since [Month/Year].
+- Provide a copy of the official list of NSAP beneficiaries approved for [Village/Ward] during [Financial Year].
+- Provide the name and designation of the officer responsible for processing fresh NSAP applications in [Block].
+- Provide the number of pending NSAP applications in [Block] as of [Date].
