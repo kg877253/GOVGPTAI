@@ -3,1105 +3,889 @@
 <head>
     <meta charset="UTF-8">
     <meta name="viewport" content="width=device-width, initial-scale=1.0">
-    <title>GovGPT — RTI Application Generator | Know Your Rights</title>
-    <meta name="description" content="GovGPT uses AI to help every Indian citizen file a legally correct RTI application in 60 seconds. Supports Hindi and English voice input.">
+    <title>GovGPT — RTI Application Generator</title>
+    <meta name="description" content="AI-powered RTI application generator for Indian citizens. Draft legally precise Section 6 applications in 60 seconds.">
 
-    <!-- Google Fonts -->
     <link rel="preconnect" href="https://fonts.googleapis.com">
     <link rel="preconnect" href="https://fonts.gstatic.com" crossorigin>
-    <link href="https://fonts.googleapis.com/css2?family=Inter:ital,wght@0,300;0,400;0,500;0,600;0,700;1,400&family=Outfit:wght@400;500;600;700;800;900&family=JetBrains+Mono:wght@400;500&display=swap" rel="stylesheet">
+    <link href="https://fonts.googleapis.com/css2?family=Sora:wght@300;400;500;600;700;800&family=DM+Mono:ital,wght@0,300;0,400;0,500;1,400&family=Playfair+Display:wght@700;800;900&display=swap" rel="stylesheet">
 
-    <!-- CDN Libraries -->
     <script src="https://cdnjs.cloudflare.com/ajax/libs/jspdf/2.5.1/jspdf.umd.min.js"></script>
     <script src="https://cdn.jsdelivr.net/npm/marked/marked.min.js"></script>
 
     <style>
-        /* ═══════════════════════════════════════════════════════════
-           DESIGN TOKENS
-        ═══════════════════════════════════════════════════════════ */
+        /* ── TOKENS ─────────────────────────────────────────── */
         :root {
-            --bg-void:        #050508;
-            --bg-deep:        #0a0a12;
-            --bg-surface:     #11111a;
-            --bg-raised:      #181825;
-            --bg-glass:       rgba(17, 17, 26, 0.85);
+            --ink:        #0b0c0f;
+            --ink-2:      #141519;
+            --ink-3:      #1c1e24;
+            --ink-4:      #252830;
 
-            --violet:         #8b5cf6;
-            --violet-light:   #a78bfa;
-            --violet-glow:    rgba(139, 92, 246, 0.2);
-            --cyan:           #0891b2;
-            --cyan-light:     #22d3ee;
-            --cyan-glow:      rgba(8, 145, 178, 0.18);
+            --gold:       #c9993a;
+            --gold-lt:    #e8b84b;
+            --gold-glow:  rgba(201,153,58,0.22);
+            --gold-faint: rgba(201,153,58,0.08);
 
-            --green:          #10b981;
-            --green-glow:     rgba(16, 185, 129, 0.18);
-            --amber:          #f59e0b;
-            --rose:           #f43f5e;
-            --rose-glow:      rgba(244, 63, 94, 0.18);
+            --jade:       #2a9d6e;
+            --jade-lt:    #34c98a;
+            --jade-glow:  rgba(42,157,110,0.20);
 
-            --text-white:     #f1f5f9;
-            --text-soft:      #cbd5e1;
-            --text-muted:     #64748b;
-            --text-faint:     #334155;
+            --rose:       #c94040;
+            --rose-lt:    #f26d6d;
+            --rose-glow:  rgba(201,64,64,0.20);
 
-            --border:         rgba(255, 255, 255, 0.08);
-            --border-hover:   rgba(255, 255, 255, 0.15);
-            --border-active:  rgba(139, 92, 246, 0.6);
+            --ash:        #8b909e;
+            --ash-lt:     #b8bcc8;
+            --ash-faint:  rgba(255,255,255,0.06);
 
-            --gradient-brand: linear-gradient(135deg, var(--violet) 0%, var(--cyan) 100%);
-            --gradient-hero:  linear-gradient(180deg, rgba(139,92,246,0.08) 0%, transparent 60%);
-            --shadow-card:    0 8px 32px rgba(0,0,0,0.4), 0 2px 8px rgba(0,0,0,0.3);
-            --shadow-glow:    0 0 50px var(--violet-glow), 0 8px 32px rgba(0,0,0,0.5);
-            
-            --radius-sm:      8px;
-            --radius-md:      12px;
-            --radius-lg:      16px;
-            --radius-xl:      24px;
-            
-            --transition-fast: 0.15s ease;
-            --transition-base: 0.25s ease;
-            --transition-slow: 0.4s ease;
+            --border:     rgba(255,255,255,0.07);
+            --border-hi:  rgba(255,255,255,0.13);
+            --border-au:  rgba(201,153,58,0.45);
+
+            --text-hi:    #f0ede8;
+            --text-md:    #b5b2ab;
+            --text-lo:    #6b6860;
+
+            --r-sm: 6px;
+            --r-md: 10px;
+            --r-lg: 16px;
+            --r-xl: 22px;
+
+            --t-fast: 0.14s ease;
+            --t-base: 0.24s ease;
+            --t-slow: 0.42s ease;
+
+            --shadow-card: 0 4px 24px rgba(0,0,0,0.5), 0 1px 4px rgba(0,0,0,0.4);
+            --shadow-glow: 0 0 40px var(--gold-glow), 0 4px 24px rgba(0,0,0,0.5);
         }
 
-        /* ═══════════════════════════════════════════════════════════
-           RESET & BASE
-        ═══════════════════════════════════════════════════════════ */
+        /* ── RESET ──────────────────────────────────────────── */
         *, *::before, *::after { box-sizing: border-box; margin: 0; padding: 0; }
-
-        html { scroll-behavior: smooth; }
+        html { scroll-behavior: smooth; color-scheme: dark; }
 
         body {
-            font-family: 'Inter', sans-serif;
-            background: var(--bg-void);
-            color: var(--text-white);
+            font-family: 'Sora', system-ui, sans-serif;
+            background: var(--ink);
+            color: var(--text-hi);
             min-height: 100vh;
             overflow-x: hidden;
+            /* Subtle paper-grain texture via SVG */
             background-image:
-                radial-gradient(ellipse 80% 50% at 0% 0%, rgba(124,58,237,0.10) 0%, transparent 70%),
-                radial-gradient(ellipse 60% 40% at 100% 100%, rgba(6,182,212,0.07) 0%, transparent 70%);
+                url("data:image/svg+xml,%3Csvg xmlns='http://www.w3.org/2000/svg' width='300' height='300'%3E%3Cfilter id='n'%3E%3CfeTurbulence type='fractalNoise' baseFrequency='0.65' numOctaves='3' stitchTiles='stitch'/%3E%3C/filter%3E%3Crect width='300' height='300' filter='url(%23n)' opacity='0.025'/%3E%3C/svg%3E"),
+                radial-gradient(ellipse 90% 60% at 20% 0%, rgba(201,153,58,0.07) 0%, transparent 65%),
+                radial-gradient(ellipse 60% 50% at 85% 90%, rgba(42,157,110,0.05) 0%, transparent 65%);
         }
 
-        h1,h2,h3,h4 { font-family: 'Outfit', sans-serif; font-weight: 700; }
+        ::-webkit-scrollbar { width: 5px; }
+        ::-webkit-scrollbar-track { background: var(--ink-2); }
+        ::-webkit-scrollbar-thumb { background: var(--ink-4); border-radius: 3px; }
 
-        /* ═══════════════════════════════════════════════════════════
-           SCROLLBAR
-        ═══════════════════════════════════════════════════════════ */
-        ::-webkit-scrollbar { width: 6px; height: 6px; }
-        ::-webkit-scrollbar-track { background: var(--bg-deep); }
-        ::-webkit-scrollbar-thumb { background: var(--text-faint); border-radius: 3px; }
-        ::-webkit-scrollbar-thumb:hover { background: var(--text-muted); }
+        h1,h2,h3,h4 { font-family: 'Playfair Display', serif; }
 
-        /* ═══════════════════════════════════════════════════════════
-           TOP ANNOUNCEMENT BANNER
-        ═══════════════════════════════════════════════════════════ */
-        .announce-bar {
-            display: none;
-            background: linear-gradient(90deg, var(--violet) 0%, #5b21b6 50%, var(--cyan) 100%);
-            padding: 0.5rem 1rem;
-            text-align: center;
-            font-size: 0.8rem;
-            font-weight: 600;
-            letter-spacing: 0.04em;
-            color: rgba(255,255,255,0.95);
-            position: relative;
-            overflow: hidden;
-        }
-        .announce-bar::before {
-            content: '';
-            position: absolute; inset: 0;
-            background: linear-gradient(90deg, transparent, rgba(255,255,255,0.08), transparent);
-            animation: shimmer 3s infinite;
-        }
-        @keyframes shimmer {
-            0% { transform: translateX(-100%); }
-            100% { transform: translateX(100%); }
-        }
-
-        /* ═══════════════════════════════════════════════════════════
-           NAVIGATION
-        ═══════════════════════════════════════════════════════════ */
-        nav {
+        /* ── TOPBAR ─────────────────────────────────────────── */
+        .topbar {
             display: flex;
             align-items: center;
             justify-content: space-between;
-            padding: 1.35rem 2.5rem;
-            border-bottom: 1px solid rgba(255,255,255,0.08);
-            background: linear-gradient(180deg, rgba(2,3,10,0.72) 0%, rgba(2,3,10,0.16) 100%);
-            backdrop-filter: blur(20px);
-            -webkit-backdrop-filter: blur(20px);
-            position: absolute;
+            padding: 1.1rem 2.5rem;
+            border-bottom: 1px solid var(--border);
+            background: rgba(11,12,15,0.82);
+            backdrop-filter: blur(18px);
+            -webkit-backdrop-filter: blur(18px);
+            position: sticky;
             top: 0;
-            left: 0;
-            right: 0;
-            z-index: 200;
+            z-index: 100;
         }
 
-        .nav-brand {
+        .brand {
             display: flex;
             align-items: center;
             gap: 0.75rem;
         }
 
-        .brand-icon {
-            width: 40px; height: 40px;
-            background: rgba(255,255,255,0.1);
-            border: 1px solid rgba(255,255,255,0.16);
+        .brand-seal {
+            width: 38px; height: 38px;
             border-radius: 50%;
+            background: linear-gradient(135deg, var(--gold) 0%, #8b6020 100%);
             display: flex; align-items: center; justify-content: center;
-            font-size: 1.25rem;
-            box-shadow: 0 16px 40px rgba(0,0,0,0.3);
+            font-size: 1.15rem;
+            flex-shrink: 0;
+            box-shadow: 0 0 18px var(--gold-glow);
         }
 
         .brand-name {
-            font-family: 'Outfit', sans-serif;
-            font-size: 1.6rem;
-            font-weight: 800;
-            letter-spacing: 0;
-            color: #ffffff;
+            font-family: 'Playfair Display', serif;
+            font-size: 1.55rem;
+            font-weight: 900;
+            color: var(--text-hi);
+            letter-spacing: -0.02em;
         }
 
-        .brand-tagline {
-            font-size: 0.72rem;
-            font-weight: 600;
-            letter-spacing: 0.08em;
+        .brand-name span {
+            color: var(--gold-lt);
+        }
+
+        .topbar-pill {
+            font-family: 'DM Mono', monospace;
+            font-size: 0.68rem;
+            letter-spacing: 0.10em;
             text-transform: uppercase;
-            color: rgba(255,255,255,0.75);
-            background: rgba(255,255,255,0.08);
-            border: 1px solid rgba(255,255,255,0.12);
-            padding: 0.2rem 0.6rem;
-            border-radius: 20px;
+            color: var(--gold);
+            background: var(--gold-faint);
+            border: 1px solid rgba(201,153,58,0.2);
+            padding: 0.3rem 0.75rem;
+            border-radius: 999px;
         }
 
-        .nav-stats {
+        .topbar-stats {
             display: flex;
-            gap: 2rem;
             align-items: center;
+            gap: 1.75rem;
         }
 
-        .nav-stat {
-            display: flex;
-            flex-direction: column;
-            align-items: flex-end;
-        }
-
-        .nav-stat-val {
-            font-family: 'Outfit', sans-serif;
-            font-size: 1.15rem;
-            font-weight: 800;
-            color: #ffffff;
+        .ts-item { display: flex; flex-direction: column; align-items: flex-end; }
+        .ts-val {
+            font-family: 'Playfair Display', serif;
+            font-size: 1.05rem;
+            font-weight: 700;
+            color: var(--text-hi);
             line-height: 1;
         }
-
-        .nav-stat-label {
-            font-size: 0.68rem;
-            color: rgba(255,255,255,0.58);
-            font-weight: 500;
-            letter-spacing: 0.04em;
+        .ts-label {
+            font-family: 'DM Mono', monospace;
+            font-size: 0.6rem;
+            letter-spacing: 0.08em;
             text-transform: uppercase;
+            color: var(--text-lo);
+            margin-top: 2px;
         }
 
         @media (max-width: 768px) {
-            nav { padding: 1rem 1rem; }
-            .nav-stats { display: none; }
-            .nav-stat-val { font-size: 1rem; }
+            .topbar { padding: 0.9rem 1rem; }
+            .topbar-stats { display: none; }
+            .brand-name { font-size: 1.25rem; }
         }
 
-        /* ═══════════════════════════════════════════════════════════
-           HERO SECTION
-        ═══════════════════════════════════════════════════════════ */
+        /* ── HERO ───────────────────────────────────────────── */
         .hero {
             position: relative;
-            min-height: 100vh;
-            display: flex;
-            flex-direction: column;
-            justify-content: center;
-            align-items: flex-start;
+            padding: 5rem 2.5rem 4rem;
             overflow: hidden;
-            padding: 7.5rem clamp(1.25rem, 6vw, 6rem) 4rem;
-            background: #02030a;
             border-bottom: 1px solid var(--border);
         }
 
-        .hero > .hero-badge,
-        .hero > h1,
-        .hero > .hero-sub,
-        .hero > .hero-actions,
-        .hero > .impact-row {
-            position: relative;
-            z-index: 2;
-        }
-
-        .hero > h1,
-        .hero > .hero-sub,
-        .hero > .hero-actions,
-        .hero > .impact-row {
-            width: min(100%, 820px);
-        }
-
-        .hero video {
-            filter: saturate(1.12) contrast(1.12) brightness(0.82);
-        }
-
-        .absolute { position: absolute; }
-        .inset-0 { inset: 0; }
-        .w-full { width: 100%; }
-        .h-full { height: 100%; }
-        .object-cover { object-fit: cover; }
-        .z-0 { z-index: 0; }
-
-        .hero::before,
-        .hero::after {
+        .hero::before {
             content: '';
             position: absolute;
             inset: 0;
+            background:
+                linear-gradient(135deg, rgba(201,153,58,0.06) 0%, transparent 50%),
+                repeating-linear-gradient(
+                    0deg,
+                    transparent,
+                    transparent 39px,
+                    rgba(255,255,255,0.018) 39px,
+                    rgba(255,255,255,0.018) 40px
+                );
             pointer-events: none;
+        }
+
+        .hero-inner {
+            max-width: 900px;
+            margin: 0 auto;
+            position: relative;
             z-index: 1;
         }
 
-        .hero::before {
-            background:
-                linear-gradient(90deg, rgba(2,3,10,0.96) 0%, rgba(2,3,10,0.74) 46%, rgba(2,3,10,0.26) 100%),
-                linear-gradient(180deg, rgba(2,3,10,0.22) 0%, rgba(2,3,10,0.24) 48%, rgba(2,3,10,0.92) 100%);
-        }
-
-        .hero::after {
-            background:
-                radial-gradient(ellipse 72% 54% at 14% 38%, rgba(124,58,237,0.24), transparent 62%),
-                radial-gradient(ellipse 45% 40% at 82% 30%, rgba(6,182,212,0.14), transparent 64%),
-                linear-gradient(135deg, rgba(255,255,255,0.08), transparent 34%);
-            mix-blend-mode: screen;
-        }
-
-        .hero-badge {
+        .hero-eyebrow {
             display: inline-flex;
             align-items: center;
-            gap: 0.55rem;
-            background: rgba(255,255,255,0.08);
-            border: 1px solid rgba(255,255,255,0.16);
-            color: rgba(255,255,255,0.92);
-            padding: 0.55rem 0.9rem;
-            border-radius: 999px;
-            font-size: 0.74rem;
-            font-weight: 600;
-            letter-spacing: 0.1em;
-            text-transform: uppercase;
+            gap: 0.6rem;
             margin-bottom: 1.5rem;
-            backdrop-filter: blur(18px);
-            -webkit-backdrop-filter: blur(18px);
-            box-shadow: 0 20px 80px rgba(0,0,0,0.3);
+            font-family: 'DM Mono', monospace;
+            font-size: 0.73rem;
+            letter-spacing: 0.12em;
+            text-transform: uppercase;
+            color: var(--gold);
         }
 
-        .hero-badge::before {
+        .hero-eyebrow::before {
             content: '';
-            width: 6px; height: 6px;
-            background: var(--cyan-light);
-            border-radius: 50%;
-            box-shadow: 0 0 18px rgba(103,232,249,0.8);
-            animation: pulse-dot 2s infinite;
-        }
-
-        @keyframes pulse-dot {
-            0%, 100% { opacity: 1; transform: scale(1); }
-            50% { opacity: 0.5; transform: scale(0.8); }
+            width: 28px;
+            height: 1px;
+            background: var(--gold);
+            opacity: 0.6;
         }
 
         .hero h1 {
-            font-size: clamp(3rem, 8vw, 6.8rem);
+            font-size: clamp(2.6rem, 6vw, 5rem);
             font-weight: 900;
-            letter-spacing: 0;
-            line-height: 0.95;
-            max-width: 920px;
-            margin-bottom: 1.35rem;
-            text-shadow: 0 18px 70px rgba(0,0,0,0.75);
+            line-height: 1.0;
+            letter-spacing: -0.02em;
+            color: var(--text-hi);
+            margin-bottom: 1.25rem;
         }
 
-        .hero h1 .highlight {
-            background: linear-gradient(135deg, #ffffff 0%, #a78bfa 42%, #67e8f9 100%);
-            -webkit-background-clip: text;
-            background-clip: text;
-            -webkit-text-fill-color: transparent;
+        .hero h1 em {
+            font-style: italic;
+            color: var(--gold-lt);
         }
 
-        .hero-sub {
-            font-size: clamp(1rem, 1.7vw, 1.2rem);
-            color: rgba(226,232,240,0.88);
-            max-width: 650px;
-            margin: 0 0 2rem;
-            line-height: 1.7;
-            text-shadow: 0 10px 32px rgba(0,0,0,0.7);
+        .hero-desc {
+            font-size: clamp(0.95rem, 1.5vw, 1.1rem);
+            color: var(--text-md);
+            max-width: 580px;
+            line-height: 1.75;
+            margin-bottom: 2.5rem;
         }
 
-        .hero-actions {
+        .hero-metrics {
             display: flex;
-            align-items: center;
-            gap: 1rem;
+            gap: 0;
             flex-wrap: wrap;
-            margin-bottom: 3rem;
+            border: 1px solid var(--border-hi);
+            width: fit-content;
+            max-width: 100%;
+        }
+
+        .hm-item {
+            padding: 1rem 2rem;
+            border-right: 1px solid var(--border-hi);
+            display: flex;
+            flex-direction: column;
+            gap: 0.25rem;
+        }
+        .hm-item:last-child { border-right: none; }
+
+        .hm-val {
+            font-family: 'Playfair Display', serif;
+            font-size: 1.8rem;
+            font-weight: 900;
+            color: var(--gold-lt);
+            line-height: 1;
+        }
+
+        .hm-label {
+            font-family: 'DM Mono', monospace;
+            font-size: 0.62rem;
+            letter-spacing: 0.1em;
+            text-transform: uppercase;
+            color: var(--text-lo);
         }
 
         .hero-cta {
             display: inline-flex;
             align-items: center;
-            justify-content: center;
-            min-height: 48px;
-            padding: 0 1.15rem;
-            border-radius: 8px;
-            border: 1px solid rgba(255,255,255,0.18);
-            background: rgba(255,255,255,0.94);
-            color: #08090f;
-            font-weight: 800;
+            gap: 0.6rem;
+            margin-top: 2rem;
+            padding: 0.85rem 1.75rem;
+            background: var(--gold);
+            color: var(--ink);
+            font-family: 'Sora', sans-serif;
+            font-weight: 700;
+            font-size: 0.9rem;
             text-decoration: none;
-            box-shadow: 0 24px 80px rgba(0,0,0,0.35);
-            transition: transform 0.25s ease, box-shadow 0.25s ease, background 0.25s ease;
+            border-radius: var(--r-sm);
+            transition: all var(--t-base);
+            box-shadow: 0 4px 20px var(--gold-glow);
         }
 
         .hero-cta:hover {
+            background: var(--gold-lt);
             transform: translateY(-2px);
-            background: #ffffff;
-            box-shadow: 0 28px 90px rgba(0,0,0,0.45);
+            box-shadow: 0 8px 30px var(--gold-glow);
         }
 
-        .hero-note {
-            color: rgba(203,213,225,0.78);
-            font-size: 0.86rem;
-            font-weight: 600;
-            letter-spacing: 0.04em;
-            text-transform: uppercase;
+        @media (max-width: 640px) {
+            .hero { padding: 3.5rem 1rem 2.5rem; }
+            .hm-item { padding: 0.75rem 1.25rem; }
+            .hm-val { font-size: 1.4rem; }
         }
 
-        .impact-row {
-            display: grid;
-            grid-template-columns: repeat(4, minmax(0, 1fr));
-            gap: 1px;
-            width: min(100%, 820px);
-            background: rgba(255,255,255,0.12);
-            border: 1px solid rgba(255,255,255,0.12);
-            backdrop-filter: blur(18px);
-            -webkit-backdrop-filter: blur(18px);
-            box-shadow: 0 30px 100px rgba(0,0,0,0.32);
-        }
-
-        .impact-item {
-            display: flex;
-            flex-direction: column;
-            align-items: flex-start;
-            gap: 0.35rem;
-            min-height: 98px;
-            padding: 1rem;
-            background: rgba(5,7,15,0.48);
-        }
-
-        .impact-number {
-            font-family: 'Outfit', sans-serif;
-            font-size: clamp(1.55rem, 3vw, 2.25rem);
-            font-weight: 900;
-            color: #ffffff;
-            line-height: 1;
-        }
-
-        .impact-desc {
-            font-size: 0.76rem;
-            color: rgba(203,213,225,0.76);
-            font-weight: 600;
-            line-height: 1.35;
-            text-transform: uppercase;
-            letter-spacing: 0.05em;
-        }
-
-        @media (max-width: 900px) {
-            .hero {
-                min-height: 100svh;
-                padding: 5.5rem 1.25rem 3rem;
-            }
-
-            .impact-row { grid-template-columns: repeat(2, minmax(0, 1fr)); }
-        }
-
-        @media (max-width: 560px) {
-            .hero {
-                align-items: flex-end;
-                padding: 5rem 1rem 2rem;
-            }
-
-            .hero::before {
-                background:
-                    linear-gradient(180deg, rgba(2,3,10,0.2) 0%, rgba(2,3,10,0.68) 36%, rgba(2,3,10,0.95) 100%),
-                    linear-gradient(90deg, rgba(2,3,10,0.9), rgba(2,3,10,0.38));
-            }
-
-            .hero h1 { font-size: clamp(2.55rem, 14vw, 4.2rem); }
-            .hero-sub { font-size: 0.98rem; }
-            .hero-actions { align-items: stretch; flex-direction: column; margin-bottom: 1.5rem; }
-            .hero-cta { width: 100%; }
-            .hero-note { font-size: 0.72rem; }
-            .impact-row { display: none; }
-        }
-
-        @keyframes fadeInDown {
-            from { opacity: 0; transform: translateY(-12px); }
-            to { opacity: 1; transform: translateY(0); }
-        }
-
-        /* ═══════════════════════════════════════════════════════════
-           WORKSPACE GRID
-        ═══════════════════════════════════════════════════════════ */
+        /* ── WORKSPACE ──────────────────────────────────────── */
         .workspace {
             display: grid;
-            grid-template-columns: minmax(0, 1fr) minmax(0, 1.6fr);
+            grid-template-columns: minmax(0, 1fr) minmax(0, 1.55fr);
             gap: 1.5rem;
-            padding: 1.5rem 2rem 3rem;
-            max-width: 1500px;
+            padding: 2rem 2rem 3rem;
+            max-width: 1480px;
             margin: 0 auto;
-            width: 100%;
         }
 
-        @media (max-width: 1100px) {
-            .workspace { grid-template-columns: 1fr; padding: 1rem; }
+        @media (max-width: 1080px) {
+            .workspace { grid-template-columns: 1fr; padding: 1rem; gap: 1rem; }
         }
 
-        /* ═══════════════════════════════════════════════════════════
-           PANEL COMPONENT
-        ═══════════════════════════════════════════════════════════ */
+        /* ── PANEL ──────────────────────────────────────────── */
         .panel {
-            background: var(--bg-glass);
+            background: var(--ink-2);
             border: 1px solid var(--border);
-            border-radius: var(--radius-xl);
-            backdrop-filter: blur(20px);
-            -webkit-backdrop-filter: blur(20px);
-            box-shadow: var(--shadow-card);
+            border-radius: var(--r-xl);
             display: flex;
             flex-direction: column;
-            gap: 1.5rem;
-            padding: 2rem;
-            transition: all var(--transition-base);
+            gap: 1.4rem;
+            padding: 1.75rem;
+            box-shadow: var(--shadow-card);
+            transition: border-color var(--t-base), box-shadow var(--t-base);
         }
 
-        .panel:hover { 
-            border-color: var(--border-hover);
-            box-shadow: var(--shadow-glow);
-            transform: translateY(-2px);
+        .panel:hover {
+            border-color: var(--border-hi);
         }
 
         .panel-head {
             display: flex;
-            align-items: center;
+            align-items: flex-start;
             gap: 0.75rem;
-            padding-bottom: 1.25rem;
+            padding-bottom: 1.2rem;
             border-bottom: 1px solid var(--border);
         }
 
-        .panel-head-icon {
-            width: 34px; height: 34px;
-            background: rgba(124,58,237,0.12);
-            border: 1px solid rgba(124,58,237,0.2);
-            border-radius: 9px;
+        .panel-icon {
+            width: 36px; height: 36px;
+            border-radius: var(--r-sm);
+            background: var(--gold-faint);
+            border: 1px solid rgba(201,153,58,0.18);
             display: flex; align-items: center; justify-content: center;
             font-size: 1rem;
+            flex-shrink: 0;
         }
 
-        .panel-head h2 {
-            font-size: 1.15rem;
+        .panel-head-text h2 {
+            font-family: 'Sora', sans-serif;
+            font-size: 1rem;
             font-weight: 700;
-            color: var(--text-white);
+            color: var(--text-hi);
+            letter-spacing: -0.01em;
         }
 
-        .panel-head .sub {
+        .panel-head-text p {
             font-size: 0.75rem;
-            color: var(--text-muted);
-            font-weight: 400;
-            font-family: 'Inter', sans-serif;
+            color: var(--text-lo);
+            margin-top: 2px;
         }
 
-        /* ═══════════════════════════════════════════════════════════
-           FORM INPUTS
-        ═══════════════════════════════════════════════════════════ */
+        /* ── FIELD ──────────────────────────────────────────── */
         .field { display: flex; flex-direction: column; gap: 0.4rem; }
 
         .field label {
-            font-size: 0.75rem;
-            font-weight: 600;
-            letter-spacing: 0.06em;
+            font-family: 'DM Mono', monospace;
+            font-size: 0.66rem;
+            letter-spacing: 0.09em;
             text-transform: uppercase;
-            color: var(--text-muted);
+            color: var(--ash);
         }
 
-        .field-row { display: grid; grid-template-columns: 1fr 1fr; gap: 1rem; }
-
+        .field-row { display: grid; grid-template-columns: 1fr 1fr; gap: 0.9rem; }
         @media (max-width: 520px) { .field-row { grid-template-columns: 1fr; } }
 
         input[type="text"], textarea {
             width: 100%;
-            background: rgba(255,255,255,0.04);
-            border: 1px solid var(--border);
-            border-radius: var(--radius-md);
-            padding: 0.85rem 1rem;
-            color: var(--text-white);
-            font-family: 'Inter', sans-serif;
-            font-size: 0.94rem;
-            transition: all var(--transition-base);
+            background: var(--ink-3);
+            border: 1px solid var(--border-hi);
+            border-radius: var(--r-md);
+            padding: 0.8rem 0.95rem;
+            color: var(--text-hi);
+            font-family: 'Sora', sans-serif;
+            font-size: 0.88rem;
+            transition: all var(--t-base);
             outline: none;
         }
 
-        input[type="text"]::placeholder, textarea::placeholder { 
-            color: var(--text-faint);
-            font-weight: 400;
+        input[type="text"]::placeholder, textarea::placeholder {
+            color: var(--text-lo);
         }
 
         input[type="text"]:focus, textarea:focus {
-            border-color: var(--border-active);
-            background: rgba(139,92,246,0.06);
-            box-shadow: 0 0 0 3px rgba(139,92,246,0.15);
-            transform: translateY(-1px);
+            border-color: var(--border-au);
+            background: rgba(201,153,58,0.05);
+            box-shadow: 0 0 0 3px rgba(201,153,58,0.1);
         }
 
         textarea {
             resize: vertical;
-            min-height: 120px;
+            min-height: 110px;
             line-height: 1.65;
         }
 
         .char-count {
-            font-size: 0.72rem;
-            color: var(--text-muted);
+            font-family: 'DM Mono', monospace;
+            font-size: 0.65rem;
+            color: var(--text-lo);
             text-align: right;
-            margin-top: 0.2rem;
+            margin-top: 0.15rem;
         }
+        .char-count.warn { color: var(--gold); }
 
-        /* ═══════════════════════════════════════════════════════════
-           VOICE MIC WIDGET
-        ═══════════════════════════════════════════════════════════ */
-        .mic-widget {
+        /* ── VOICE ──────────────────────────────────────────── */
+        .voice-row {
             display: flex;
             align-items: center;
-            gap: 1rem;
-            background: rgba(8,145,178,0.06);
-            border: 1px solid rgba(8,145,178,0.2);
-            border-radius: var(--radius-md);
-            padding: 0.85rem 1.1rem;
+            gap: 0.85rem;
+            background: var(--ink-3);
+            border: 1px solid var(--border-hi);
+            border-radius: var(--r-md);
+            padding: 0.75rem 1rem;
             cursor: pointer;
-            transition: all var(--transition-base);
+            transition: all var(--t-base);
             user-select: none;
         }
 
-        .mic-widget:hover {
-            background: rgba(8,145,178,0.1);
-            border-color: rgba(8,145,178,0.35);
-            transform: translateY(-1px);
-            box-shadow: 0 4px 16px var(--cyan-glow);
+        .voice-row:hover {
+            border-color: var(--border-au);
+            background: rgba(201,153,58,0.05);
         }
 
-        .mic-circle {
-            width: 38px; height: 38px;
+        .voice-btn {
+            width: 36px; height: 36px;
             border-radius: 50%;
-            background: var(--cyan);
+            background: var(--jade);
             display: flex; align-items: center; justify-content: center;
-            font-size: 1rem;
+            font-size: 0.9rem;
             flex-shrink: 0;
-            transition: all var(--transition-base);
-            box-shadow: 0 0 14px var(--cyan-glow);
+            transition: all var(--t-base);
+            box-shadow: 0 0 12px var(--jade-glow);
         }
 
-        .mic-info { flex: 1; }
+        .voice-info { flex: 1; }
+        .voice-title { font-size: 0.84rem; font-weight: 600; color: var(--text-md); }
+        .voice-hint { font-size: 0.7rem; color: var(--text-lo); margin-top: 1px; }
 
-        .mic-title {
-            font-size: 0.88rem;
-            font-weight: 600;
-            color: var(--text-soft);
+        .voice-badge {
+            font-family: 'DM Mono', monospace;
+            font-size: 0.64rem;
+            letter-spacing: 0.08em;
+            color: var(--jade-lt);
+            background: var(--jade-glow);
+            border: 1px solid rgba(42,157,110,0.3);
+            padding: 0.22rem 0.55rem;
+            border-radius: var(--r-sm);
         }
 
-        .mic-hint {
-            font-size: 0.74rem;
-            color: var(--text-muted);
+        .voice-row.recording {
+            border-color: rgba(201,64,64,0.5);
+            background: rgba(201,64,64,0.07);
+            animation: rec-pulse 1.6s infinite;
         }
 
-        .mic-lang-badge {
-            font-size: 0.7rem;
-            font-weight: 700;
-            letter-spacing: 0.06em;
-            color: var(--cyan);
-            background: rgba(8,145,178,0.12);
-            border: 1px solid rgba(8,145,178,0.25);
-            padding: 0.25rem 0.6rem;
-            border-radius: var(--radius-sm);
+        @keyframes rec-pulse {
+            0%,100% { border-color: rgba(201,64,64,0.4); }
+            50% { border-color: rgba(201,64,64,0.75); }
         }
 
-        /* Recording state */
-        .mic-widget.recording {
-            border-color: rgba(244,63,94,0.5);
-            background: rgba(244,63,94,0.08);
-            animation: record-border 1.5s infinite;
-        }
-
-        @keyframes record-border {
-            0%, 100% { border-color: rgba(244,63,94,0.5); }
-            50% { border-color: rgba(244,63,94,0.8); }
-        }
-
-        .mic-widget.recording .mic-circle {
+        .voice-row.recording .voice-btn {
             background: var(--rose);
-            animation: mic-pulse 1.2s infinite;
-            box-shadow: 0 0 0 0 rgba(244,63,94,0.6);
+            box-shadow: 0 0 0 0 rgba(201,64,64,0.6);
+            animation: mic-ring 1.2s infinite;
         }
 
-        @keyframes mic-pulse {
-            0% { box-shadow: 0 0 0 0 rgba(244,63,94,0.6); }
-            70% { box-shadow: 0 0 0 16px rgba(244,63,94,0); }
-            100% { box-shadow: 0 0 0 0 rgba(244,63,94,0); }
+        @keyframes mic-ring {
+            0% { box-shadow: 0 0 0 0 rgba(201,64,64,0.6); }
+            70% { box-shadow: 0 0 0 14px rgba(201,64,64,0); }
+            100% { box-shadow: 0 0 0 0 rgba(201,64,64,0); }
         }
 
-        .mic-widget.recording .mic-title { color: var(--rose); }
+        .voice-row.recording .voice-title { color: var(--rose-lt); }
 
-        /* ═══════════════════════════════════════════════════════════
-           BUTTONS
-        ═══════════════════════════════════════════════════════════ */
+        /* ── BUTTONS ────────────────────────────────────────── */
         .btn {
-            font-family: 'Outfit', sans-serif;
-            font-size: 0.95rem;
+            font-family: 'Sora', sans-serif;
+            font-size: 0.88rem;
             font-weight: 700;
-            padding: 0.9rem 1.6rem;
-            border-radius: var(--radius-md);
+            padding: 0.85rem 1.4rem;
+            border-radius: var(--r-md);
             border: none;
             cursor: pointer;
             display: inline-flex;
             align-items: center;
             justify-content: center;
-            gap: 0.6rem;
-            transition: all var(--transition-base);
-            position: relative;
-            overflow: hidden;
-            letter-spacing: 0.01em;
+            gap: 0.55rem;
+            transition: all var(--t-base);
+            letter-spacing: -0.01em;
         }
 
-        .btn::before {
-            content: '';
-            position: absolute; inset: 0;
-            background: rgba(255,255,255,0.1);
-            opacity: 0;
-            transition: opacity var(--transition-fast);
-        }
-
-        .btn:hover::before { opacity: 1; }
         .btn:active { transform: scale(0.97); }
+        .btn:disabled { opacity: 0.38; cursor: not-allowed; transform: none !important; }
 
-        .btn-generate {
+        .btn-primary {
             width: 100%;
-            background: var(--gradient-brand);
-            color: white;
-            font-size: 1.1rem;
-            padding: 1.1rem;
-            box-shadow: 0 4px 20px var(--violet-glow), 0 0 0 0 rgba(139,92,246,0);
-            transition: all var(--transition-base);
+            background: var(--gold);
+            color: var(--ink);
+            font-size: 1rem;
+            padding: 1rem;
+            box-shadow: 0 4px 20px var(--gold-glow);
+            letter-spacing: 0;
         }
 
-        .btn-generate:hover {
+        .btn-primary:hover:not(:disabled) {
+            background: var(--gold-lt);
             transform: translateY(-2px);
-            box-shadow: 0 8px 32px rgba(139,92,246,0.4), 0 4px 12px rgba(0,0,0,0.3);
+            box-shadow: 0 8px 32px rgba(201,153,58,0.4);
         }
 
-        .btn-generate:disabled {
-            background: var(--bg-raised);
-            color: var(--text-muted);
-            cursor: not-allowed;
-            transform: none;
-            box-shadow: none;
+        .btn-secondary {
+            background: var(--ink-3);
+            border: 1px solid var(--border-hi);
+            color: var(--text-md);
+            font-size: 0.82rem;
+            padding: 0.7rem 1rem;
         }
 
-        .btn-outline {
-            background: rgba(255,255,255,0.04);
-            border: 1px solid var(--border);
-            color: var(--text-soft);
-            font-size: 0.85rem;
-            padding: 0.75rem 1.1rem;
-            border-radius: var(--radius-md);
+        .btn-secondary:hover:not(:disabled) {
+            border-color: var(--border-au);
+            background: var(--gold-faint);
+            color: var(--text-hi);
         }
 
-        .btn-outline:hover:not(:disabled) {
-            border-color: var(--border-hover);
-            background: rgba(255,255,255,0.08);
-            color: var(--text-white);
-            transform: translateY(-1px);
+        .btn-jade {
+            background: rgba(42,157,110,0.12);
+            border: 1px solid rgba(42,157,110,0.28);
+            color: var(--jade-lt);
+            font-size: 0.82rem;
+            padding: 0.7rem 1rem;
         }
 
-        .btn-outline:disabled { opacity: 0.4; cursor: not-allowed; }
-
-        .btn-green {
-            background: rgba(16,185,129,0.15);
-            border: 1px solid rgba(16,185,129,0.3);
-            color: var(--green);
+        .btn-jade:hover:not(:disabled) {
+            background: rgba(42,157,110,0.22);
+            border-color: rgba(42,157,110,0.5);
+            box-shadow: 0 4px 14px var(--jade-glow);
         }
 
-        .btn-green:hover:not(:disabled) {
-            background: rgba(16,185,129,0.25);
-            border-color: rgba(16,185,129,0.5);
-            transform: translateY(-1px);
-            box-shadow: 0 4px 16px var(--green-glow);
-        }
-
-        /* Loading spinner */
-        .spin { animation: spin 1s linear infinite; display: inline-block; }
-        @keyframes spin { to { transform: rotate(360deg); } }
-
-        /* ═══════════════════════════════════════════════════════════
-           QUICK TEMPLATES
-        ═══════════════════════════════════════════════════════════ */
-        .templates-label {
-            font-size: 0.72rem;
-            font-weight: 600;
-            letter-spacing: 0.08em;
+        /* ── TEMPLATES ──────────────────────────────────────── */
+        .tpl-label {
+            font-family: 'DM Mono', monospace;
+            font-size: 0.64rem;
+            letter-spacing: 0.1em;
             text-transform: uppercase;
-            color: var(--text-muted);
-            margin-bottom: -0.5rem;
+            color: var(--text-lo);
         }
 
-        .templates-grid {
+        .tpl-grid {
             display: grid;
             grid-template-columns: 1fr 1fr;
-            gap: 0.65rem;
+            gap: 0.6rem;
         }
 
-        .template-card {
-            background: rgba(255,255,255,0.03);
+        .tpl-card {
+            background: var(--ink-3);
             border: 1px solid var(--border);
-            border-radius: var(--radius-md);
-            padding: 0.9rem 1.1rem;
+            border-radius: var(--r-md);
+            padding: 0.8rem 0.95rem;
             cursor: pointer;
-            transition: all var(--transition-base);
+            transition: all var(--t-base);
             text-align: left;
         }
 
-        .template-card:hover {
-            background: rgba(139,92,246,0.08);
-            border-color: rgba(139,92,246,0.4);
-            transform: translateY(-2px);
-            box-shadow: 0 4px 16px var(--violet-glow);
+        .tpl-card:hover {
+            border-color: var(--border-au);
+            background: var(--gold-faint);
+            transform: translateY(-1px);
+            box-shadow: 0 4px 14px rgba(201,153,58,0.12);
         }
 
-        .template-card:active { transform: scale(0.98); }
-
-        .tpl-scheme {
-            font-size: 0.65rem;
-            font-weight: 700;
+        .tpl-tag {
+            font-family: 'DM Mono', monospace;
+            font-size: 0.6rem;
             letter-spacing: 0.08em;
             text-transform: uppercase;
-            color: var(--cyan);
+            color: var(--gold);
             margin-bottom: 0.2rem;
         }
 
         .tpl-title {
-            font-size: 0.82rem;
+            font-size: 0.78rem;
             font-weight: 600;
-            color: var(--text-soft);
+            color: var(--text-md);
             line-height: 1.3;
         }
 
-        /* ═══════════════════════════════════════════════════════════
-           RIGHT PANEL — OUTPUT CONSOLE
-        ═══════════════════════════════════════════════════════════ */
-
-        /* Progress Stepper */
-        .stepper {
+        /* ── OUTPUT PANEL ───────────────────────────────────── */
+        /* Progress bar */
+        .progress-track {
             display: flex;
-            align-items: center;
             gap: 0;
-            background: var(--bg-deep);
             border: 1px solid var(--border);
-            border-radius: var(--radius-md);
+            border-radius: var(--r-md);
             overflow: hidden;
+            background: var(--ink);
         }
 
-        .step-item {
+        .prog-step {
             flex: 1;
             display: flex;
             align-items: center;
-            gap: 0.6rem;
-            padding: 0.8rem 1rem;
-            font-size: 0.8rem;
-            font-weight: 500;
-            color: var(--text-muted);
-            transition: all var(--transition-slow);
-            position: relative;
+            gap: 0.5rem;
+            padding: 0.65rem 0.8rem;
+            font-size: 0.75rem;
+            font-weight: 600;
+            color: var(--text-lo);
+            border-right: 1px solid var(--border);
+            transition: all var(--t-slow);
         }
+        .prog-step:last-child { border-right: none; }
 
-        .step-item:not(:last-child)::after {
-            content: '›';
-            position: absolute;
-            right: 0;
-            color: var(--text-faint);
-            font-size: 1.1rem;
-        }
-
-        .step-num {
-            width: 22px; height: 22px;
+        .prog-dot {
+            width: 20px; height: 20px;
             border-radius: 50%;
-            background: var(--bg-raised);
-            border: 1px solid var(--border);
+            background: var(--ink-4);
+            border: 1px solid var(--border-hi);
             display: flex; align-items: center; justify-content: center;
-            font-size: 0.7rem;
+            font-size: 0.65rem;
             font-weight: 700;
             flex-shrink: 0;
-            transition: all var(--transition-slow);
+            transition: all var(--t-slow);
         }
 
-        .step-item.active {
-            color: var(--cyan);
-            background: rgba(8,145,178,0.08);
-        }
-
-        .step-item.active .step-num {
-            background: var(--cyan);
-            color: var(--bg-void);
-            border-color: var(--cyan);
-            box-shadow: 0 0 12px var(--cyan-glow);
+        .prog-step.active { color: var(--gold); background: var(--gold-faint); }
+        .prog-step.active .prog-dot {
+            background: var(--gold);
+            color: var(--ink);
+            border-color: var(--gold);
+            box-shadow: 0 0 10px var(--gold-glow);
             transform: scale(1.1);
         }
 
-        .step-item.done {
-            color: var(--green);
+        .prog-step.done { color: var(--jade-lt); }
+        .prog-step.done .prog-dot {
+            background: var(--jade);
+            color: white;
+            border-color: var(--jade);
         }
 
-        .step-item.done .step-num {
-            background: var(--green);
-            color: var(--bg-void);
-            border-color: var(--green);
-            box-shadow: 0 0 8px var(--green-glow);
-        }
-
-        /* Department Badge */
-        .dept-badge-wrap {
+        /* Dept badge */
+        .dept-badge {
             display: none;
-        }
-
-        .dept-badge-wrap.visible {
-            display: flex;
             align-items: center;
-            gap: 0.6rem;
-            padding: 0.7rem 1rem;
-            background: rgba(16,185,129,0.1);
-            border: 1px solid rgba(16,185,129,0.3);
-            border-radius: var(--radius-md);
-            font-size: 0.85rem;
-            animation: fadeInDown 0.4s ease;
-            box-shadow: 0 4px 12px var(--green-glow);
+            gap: 0.5rem;
+            padding: 0.6rem 0.9rem;
+            background: rgba(42,157,110,0.1);
+            border: 1px solid rgba(42,157,110,0.25);
+            border-radius: var(--r-md);
+            font-size: 0.8rem;
+            animation: fadeUp 0.35s ease;
+        }
+        .dept-badge.show { display: flex; }
+        .dept-arrow { color: var(--jade-lt); font-weight: 700; }
+        .dept-name { color: var(--text-md); font-weight: 600; }
+
+        @keyframes fadeUp {
+            from { opacity: 0; transform: translateY(6px); }
+            to   { opacity: 1; transform: translateY(0); }
         }
 
-        .dept-arrow { color: var(--green); font-weight: 700; }
-        .dept-name { color: var(--text-soft); font-weight: 600; }
-
-        /* RTI Output Document */
-        .doc-console {
-            background: #08090f;
+        /* Console */
+        .console-wrap {
+            background: var(--ink);
             border: 1px solid var(--border);
-            border-radius: var(--radius-lg);
-            padding: 1.75rem;
-            min-height: 420px;
-            max-height: 560px;
+            border-radius: var(--r-lg);
+            min-height: 400px;
+            max-height: 540px;
             overflow-y: auto;
-            font-family: 'JetBrains Mono', monospace;
-            font-size: 0.89rem;
-            line-height: 1.7;
             position: relative;
             flex: 1;
-            box-shadow: inset 0 2px 8px rgba(0,0,0,0.3);
         }
 
-        /* Markdown-rendered RTI content styling */
-        .doc-console h1, .doc-console h2, .doc-console h3 {
-            font-family: 'Inter', sans-serif;
-            font-size: 0.9rem;
-            color: var(--cyan);
-            margin: 1.25rem 0 0.5rem;
+        .console-inner {
+            padding: 1.5rem;
+            font-family: 'DM Mono', monospace;
+            font-size: 0.84rem;
+            line-height: 1.75;
+        }
+
+        /* Markdown output styling */
+        #rti-output h1, #rti-output h2, #rti-output h3 {
+            font-family: 'Sora', sans-serif;
+            font-size: 0.82rem;
             font-weight: 700;
+            color: var(--gold-lt);
+            margin: 1.1rem 0 0.4rem;
+            letter-spacing: 0.04em;
+            text-transform: uppercase;
         }
-
-        .doc-console h1:first-child, .doc-console h2:first-child { margin-top: 0; }
-
-        .doc-console p {
-            margin-bottom: 0.9rem;
-            color: #d1d5db;
-        }
-
-        .doc-console ul, .doc-console ol {
-            margin: 0 0 0.9rem 1.5rem;
-            color: #d1d5db;
-        }
-
-        .doc-console li { margin-bottom: 0.45rem; }
-
-        .doc-console strong {
-            color: var(--violet-light);
-            font-family: 'Inter', sans-serif;
-        }
-
-        .doc-console em { color: var(--amber); font-style: normal; font-weight: 600; }
-
-        .doc-console hr {
-            border: none;
-            border-top: 1px solid var(--border);
-            margin: 1rem 0;
-        }
-
-        .doc-console blockquote {
-            border-left: 3px solid var(--violet);
-            padding-left: 1rem;
-            color: var(--text-muted);
+        #rti-output h1:first-child, #rti-output h2:first-child { margin-top: 0; }
+        #rti-output p { color: var(--ash-lt); margin-bottom: 0.75rem; line-height: 1.75; }
+        #rti-output strong { color: var(--text-hi); font-weight: 600; }
+        #rti-output em { color: var(--gold); font-style: normal; font-weight: 600; }
+        #rti-output hr { border: none; border-top: 1px solid var(--border); margin: 0.9rem 0; }
+        #rti-output ul, #rti-output ol { margin: 0 0 0.75rem 1.4rem; color: var(--ash-lt); }
+        #rti-output li { margin-bottom: 0.35rem; }
+        #rti-output blockquote {
+            border-left: 2px solid var(--gold);
+            padding-left: 0.9rem;
+            color: var(--text-lo);
             margin: 0.75rem 0;
         }
 
-        /* Cursor blink */
-        .cursor-blink {
-            display: inline-block;
-            width: 2px;
-            height: 1.1em;
-            background: var(--cyan);
-            margin-left: 2px;
-            vertical-align: text-bottom;
-            animation: blink 0.9s infinite;
-        }
-
-        @keyframes blink { 0%,100% { opacity: 1; } 50% { opacity: 0; } }
-
-        /* Placeholder state */
-        .console-placeholder {
+        /* Placeholder */
+        .console-empty {
             display: flex;
             flex-direction: column;
             align-items: center;
             justify-content: center;
-            height: 100%;
-            min-height: 320px;
-            gap: 1rem;
-            color: var(--text-muted);
+            height: 380px;
+            gap: 0.9rem;
+            color: var(--text-lo);
             text-align: center;
         }
 
-        .console-placeholder .icon { font-size: 3rem; opacity: 0.3; }
-        .console-placeholder p { font-size: 0.85rem; max-width: 260px; line-height: 1.5; font-family: 'Inter', sans-serif; }
+        .console-empty .ce-icon {
+            font-size: 2.5rem;
+            opacity: 0.25;
+            filter: grayscale(1);
+        }
+
+        .console-empty p {
+            font-size: 0.82rem;
+            max-width: 240px;
+            line-height: 1.6;
+            font-family: 'DM Mono', monospace;
+        }
+
+        /* Cursor blink */
+        .cursor {
+            display: inline-block;
+            width: 2px;
+            height: 1em;
+            background: var(--gold);
+            margin-left: 2px;
+            vertical-align: text-bottom;
+            animation: blink 0.9s infinite;
+        }
+        @keyframes blink { 0%,100% { opacity: 1; } 50% { opacity: 0; } }
 
         /* Error block */
-        .error-block {
-            background: rgba(244,63,94,0.06);
-            border: 1px solid rgba(244,63,94,0.2);
-            border-radius: 10px;
-            padding: 1rem 1.25rem;
-            color: #fda4af;
-            font-family: 'Inter', sans-serif;
-            font-size: 0.85rem;
-            line-height: 1.5;
+        .err-block {
+            background: rgba(201,64,64,0.07);
+            border: 1px solid rgba(201,64,64,0.22);
+            border-radius: var(--r-md);
+            padding: 0.9rem 1.1rem;
+            color: #f0a0a0;
+            font-family: 'Sora', sans-serif;
+            font-size: 0.82rem;
+            line-height: 1.6;
+        }
+        .err-block code {
+            background: rgba(255,255,255,0.06);
+            padding: 0.1em 0.35em;
+            border-radius: 3px;
+            font-family: 'DM Mono', monospace;
+            font-size: 0.85em;
         }
 
         /* Action bar */
         .action-bar {
             display: grid;
             grid-template-columns: 1fr 1fr 1fr;
-            gap: 0.75rem;
+            gap: 0.7rem;
         }
 
-        @media (max-width: 520px) { .action-bar { grid-template-columns: 1fr 1fr; } }
+        @media (max-width: 480px) { .action-bar { grid-template-columns: 1fr 1fr; } }
 
-        /* ═══════════════════════════════════════════════════════════
-           FOOTER
-        ═══════════════════════════════════════════════════════════ */
+        /* ── DIVIDER ────────────────────────────────────────── */
+        .divider { height: 1px; background: var(--border); }
+
+        /* ── FOOTER ─────────────────────────────────────────── */
         footer {
-            text-align: center;
-            padding: 1.5rem 2rem;
             border-top: 1px solid var(--border);
-            color: var(--text-muted);
-            font-size: 0.78rem;
+            padding: 1.35rem 2.5rem;
+            display: flex;
+            align-items: center;
+            justify-content: space-between;
+            gap: 1rem;
+            flex-wrap: wrap;
         }
 
-        footer a { color: var(--violet-light); text-decoration: none; }
-
-        /* ═══════════════════════════════════════════════════════════
-           ANIMATIONS & UTILITIES
-        ═══════════════════════════════════════════════════════════ */
-        .fade-in { animation: fadeInDown 0.5s ease; }
-
-        .divider {
-            height: 1px;
-            background: var(--border);
-            width: 100%;
+        .footer-left {
+            font-family: 'DM Mono', monospace;
+            font-size: 0.68rem;
+            letter-spacing: 0.04em;
+            color: var(--text-lo);
         }
+
+        .footer-left strong { color: var(--gold); }
+
+        .footer-right {
+            font-size: 0.68rem;
+            color: var(--text-lo);
+        }
+
+        /* ── SPIN ───────────────────────────────────────────── */
+        .spin { animation: spin 0.9s linear infinite; display: inline-block; }
+        @keyframes spin { to { transform: rotate(360deg); } }
     </style>
 </head>
 <body>
 
-<!-- ── ANNOUNCE BAR ──────────────────────────────────────────── -->
-<div class="announce-bar">
-    🏆 Scaler × Meta AI PyTorch Hackathon 2026 &nbsp;|&nbsp; Team DLC &nbsp;|&nbsp; GovGPT — RTI in 60 Seconds
-</div>
-
-<!-- ── NAVIGATION ────────────────────────────────────────────── -->
-<nav>
-    <div class="nav-brand">
-        <div class="brand-icon">⚖️</div>
-        <span class="brand-name">GovGPT</span>
-        <span class="brand-tagline">RTI Streamer</span>
+<!-- TOP BAR -->
+<header class="topbar">
+    <div class="brand">
+        <div class="brand-seal">⚖</div>
+        <div>
+            <div class="brand-name">Gov<span>GPT</span></div>
+        </div>
+        <div class="topbar-pill">RTI · Section 6 · Act 2005</div>
     </div>
-    <div class="nav-stats">
-        <div class="nav-stat">
-            <span class="nav-stat-val" id="counter-crore">70Cr</span>
-            <span class="nav-stat-label">Unheard Citizens</span>
+    <div class="topbar-stats">
+        <div class="ts-item">
+            <div class="ts-val">70 Cr</div>
+            <div class="ts-label">Citizens Served</div>
         </div>
-        <div class="nav-stat">
-            <span class="nav-stat-val">60s</span>
-            <span class="nav-stat-label">RTI Generated</span>
+        <div class="ts-item">
+            <div class="ts-val">900+</div>
+            <div class="ts-label">Departments</div>
         </div>
-        <div class="nav-stat">
-            <span class="nav-stat-val" id="counter-dept">900+</span>
-            <span class="nav-stat-label">Departments Mapped</span>
+        <div class="ts-item">
+            <div class="ts-val">60 sec</div>
+            <div class="ts-label">Avg. Draft Time</div>
         </div>
     </div>
-</nav>
+</header>
 
-<!-- ── HERO ──────────────────────────────────────────────────── -->
+<!-- HERO -->
 <section class="hero">
-    <video autoplay loop muted playsinline class="absolute inset-0 w-full h-full object-cover z-0">
-        <source src="https://res.cloudinary.com/dfonotyfb/video/upload/v1775585556/dds3_1_rqhg7x.mp4" type="video/mp4" />
-    </video>
-
-    <div class="hero-badge">Cinematic citizen-rights engine</div>
-    <h1>Government answers, <span class="highlight">without the maze.</span></h1>
-    <p class="hero-sub">
-        Speak or type your government problem. GovGPT routes it to the correct authority,
-        retrieves official scheme context, and produces a legally ready RTI application.
-    </p>
-    <div class="hero-actions">
-        <a class="hero-cta" href="#input-panel">Start an RTI</a>
-        <span class="hero-note">Hindi and English supported</span>
-    </div>
-    <div class="impact-row">
-        <div class="impact-item">
-            <span class="impact-number">Live</span>
-            <span class="impact-desc">Department routing</span>
+    <div class="hero-inner">
+        <div class="hero-eyebrow">Scaler × Meta AI Hackathon 2026 · Team DLC</div>
+        <h1>Government answers,<br><em>without the maze.</em></h1>
+        <p class="hero-desc">
+            Speak or type your grievance in Hindi, Hinglish, or English.
+            GovGPT routes it to the correct authority and produces a legally precise,
+            Section 6-compliant RTI application in seconds.
+        </p>
+        <div class="hero-metrics">
+            <div class="hm-item">
+                <div class="hm-val">30</div>
+                <div class="hm-label">Day Response Clock</div>
+            </div>
+            <div class="hm-item">
+                <div class="hm-val">₹10</div>
+                <div class="hm-label">Total Filing Cost</div>
+            </div>
+            <div class="hm-item">
+                <div class="hm-val">Free</div>
+                <div class="hm-label">For BPL Citizens</div>
+            </div>
+            <div class="hm-item">
+                <div class="hm-val">PDF</div>
+                <div class="hm-label">Print-Ready Output</div>
+            </div>
         </div>
-        <div class="impact-item">
-            <span class="impact-number">900+</span>
-            <span class="impact-desc">Authorities mapped</span>
-        </div>
-        <div class="impact-item">
-            <span class="impact-number">30</span>
-            <span class="impact-desc">Day response clock</span>
-        </div>
-        <div class="impact-item">
-            <span class="impact-number">PDF</span>
-            <span class="impact-desc">Ready to submit</span>
-        </div>
+        <a class="hero-cta" href="#workspace">Start your RTI →</a>
     </div>
 </section>
 
-<!-- ── WORKSPACE ─────────────────────────────────────────────── -->
-<div class="workspace">
+<!-- WORKSPACE -->
+<div class="workspace" id="workspace">
 
-    <!-- LEFT PANEL: INPUT ──────────────────────────────────────── -->
+    <!-- LEFT: INPUT -->
     <div class="panel" id="input-panel">
         <div class="panel-head">
-            <div class="panel-head-icon">📝</div>
-            <div>
+            <div class="panel-icon">📝</div>
+            <div class="panel-head-text">
                 <h2>Your Details &amp; Problem</h2>
-                <span class="sub">Fill in your info or use a template below</span>
+                <p>Fill in or use a quick template below</p>
             </div>
         </div>
 
-        <!-- Name & Address -->
         <div class="field-row">
             <div class="field">
                 <label for="inp-name">Full Name</label>
@@ -1113,200 +897,198 @@
             </div>
         </div>
 
-        <!-- Problem Description -->
         <div class="field">
             <label for="inp-problem">Describe Your Problem (Hindi / English / Hinglish)</label>
-            <textarea id="inp-problem" placeholder="e.g. 'Mera PM Kisan ka 2000 rupaye ka kist pichle 3 mahine se nahi aaya. Aadhaar linked hai phir bhi payment nahi aayi.'" oninput="updateCharCount()"></textarea>
-            <div class="char-count" id="char-count">0 / 500 characters</div>
+            <textarea id="inp-problem"
+                placeholder="e.g. 'Mera PM Kisan ka 2000 rupaye ka kist pichle 3 mahine se nahi aaya. Aadhaar linked hai phir bhi payment nahi aayi.'"
+                oninput="updateCharCount()"></textarea>
+            <div class="char-count" id="char-count">0 / 500</div>
         </div>
 
-        <!-- Voice Input -->
-        <div class="mic-widget" id="mic-widget">
-            <div class="mic-circle" id="mic-circle">🎙️</div>
-            <div class="mic-info">
-                <div class="mic-title" id="mic-title">Tap to Speak Your Problem</div>
-                <div class="mic-hint">Voice input in Hindi (Chrome only)</div>
+        <!-- Voice -->
+        <div class="voice-row" id="voice-row">
+            <div class="voice-btn" id="voice-btn">🎙️</div>
+            <div class="voice-info">
+                <div class="voice-title" id="voice-title">Tap to speak your problem</div>
+                <div class="voice-hint">Hindi voice input — Chrome browser only</div>
             </div>
-            <span class="mic-lang-badge">हिंदी</span>
+            <div class="voice-badge">हिंदी</div>
         </div>
 
-        <!-- Generate Button -->
-        <button class="btn btn-generate" id="btn-generate">
+        <!-- Generate -->
+        <button class="btn btn-primary" id="btn-generate">
             ✨ Generate RTI Application
         </button>
 
         <div class="divider"></div>
 
-        <!-- Quick Templates -->
-        <div class="templates-label">⚡ Quick Templates — tap to fill</div>
-        <div class="templates-grid">
+        <!-- Templates -->
+        <div class="tpl-label">⚡ Quick templates — tap to fill</div>
+        <div class="tpl-grid">
 
-            <div class="template-card" onclick="fillTemplate('Ramesh Kumar','Village Bhainsa, Hisar, Haryana','PM Kisan Samman Nidhi ke teen instalments pichle 9 mahine se bank account me credit nahi hue hain. Aadhaar aur bank account link hai.')">
-                <div class="tpl-scheme">PM Kisan</div>
+            <div class="tpl-card" onclick="fillTemplate('Ramesh Kumar','Village Bhainsa, Hisar, Haryana','PM Kisan Samman Nidhi ke teen instalments pichle 9 mahine se bank account me credit nahi hue hain. Aadhaar aur bank account link hai.')">
+                <div class="tpl-tag">PM Kisan</div>
                 <div class="tpl-title">Payment not received for 9 months</div>
             </div>
 
-            <div class="template-card" onclick="fillTemplate('Kamla Devi','Gram Panchayat Bilara, Pali, Rajasthan','Hamare Fair Price Shop dealer ne pichle 2 mahine se ration card par chawal aur gehu dene se mana kar diya hai.')">
-                <div class="tpl-scheme">Ration Card</div>
+            <div class="tpl-card" onclick="fillTemplate('Kamla Devi','Gram Panchayat Bilara, Pali, Rajasthan','Hamare Fair Price Shop dealer ne pichle 2 mahine se ration card par chawal aur gehu dene se mana kar diya hai.')">
+                <div class="tpl-tag">Ration Card</div>
                 <div class="tpl-title">Dealer denying food grains</div>
             </div>
 
-            <div class="template-card" onclick="fillTemplate('Suresh Verma','Ward 12, Indore, Madhya Pradesh','Ayushman Bharat PM-JAY card ke liye apply kiya tha. SECC list mein naam hai phir bhi card reject ho gaya. Koi reason nahi bataya.')">
-                <div class="tpl-scheme">Ayushman Bharat</div>
+            <div class="tpl-card" onclick="fillTemplate('Suresh Verma','Ward 12, Indore, Madhya Pradesh','Ayushman Bharat PM-JAY card ke liye apply kiya tha. SECC list mein naam hai phir bhi card reject ho gaya. Koi reason nahi bataya.')">
+                <div class="tpl-tag">Ayushman</div>
                 <div class="tpl-title">Card rejected without reason</div>
             </div>
 
-            <div class="template-card" onclick="fillTemplate('Rajesh Yadav','Block Motipur, Muzaffarpur, Bihar','MGNREGA mein kaam kiya par 3 mahine se wage payment nahi aayi. Gram Panchayat ne koi jawab nahi diya.')">
-                <div class="tpl-scheme">MGNREGA</div>
-                <div class="tpl-title">Wages pending for 3 months</div>
+            <div class="tpl-card" onclick="fillTemplate('Rajesh Yadav','Block Motipur, Muzaffarpur, Bihar','MGNREGA mein kaam kiya par 3 mahine se wage payment nahi aayi. Gram Panchayat ne koi jawab nahi diya.')">
+                <div class="tpl-tag">MGNREGA</div>
+                <div class="tpl-title">Wages pending 3 months</div>
             </div>
 
-            <div class="template-card" onclick="fillTemplate('Savitri Devi','Gram Pachha, Barabanki, Uttar Pradesh','PM Awas Yojana Gramin ke liye select hua tha. 2 saal ho gaye hain, 2nd installment abhi tak nahi mili. BDO office ne koi information nahi di.')">
-                <div class="tpl-scheme">PM Awas</div>
+            <div class="tpl-card" onclick="fillTemplate('Savitri Devi','Gram Pachha, Barabanki, Uttar Pradesh','PM Awas Yojana Gramin ke liye select hua tha. 2 saal ho gaye, 2nd installment abhi tak nahi mili. BDO office ne koi information nahi di.')">
+                <div class="tpl-tag">PM Awas</div>
                 <div class="tpl-title">2nd instalment not released</div>
             </div>
 
-            <div class="template-card" onclick="fillTemplate('Mohammed Ali','15-B Lajpat Nagar, New Delhi','My passport application submitted 6 months ago is still pending at PSK Delhi. No update given despite multiple calls.')">
-                <div class="tpl-scheme">Passport</div>
+            <div class="tpl-card" onclick="fillTemplate('Mohammed Ali','15-B Lajpat Nagar, New Delhi','My passport application submitted 6 months ago is still pending at PSK Delhi. No update given despite multiple calls.')">
+                <div class="tpl-tag">Passport</div>
                 <div class="tpl-title">Application pending 6 months</div>
             </div>
 
         </div>
     </div>
 
-    <!-- RIGHT PANEL: OUTPUT ─────────────────────────────────────── -->
+    <!-- RIGHT: OUTPUT -->
     <div class="panel" id="output-panel">
         <div class="panel-head">
-            <div class="panel-head-icon">📄</div>
-            <div>
+            <div class="panel-icon">📄</div>
+            <div class="panel-head-text">
                 <h2>Generated RTI Application</h2>
-                <span class="sub">Legal Section 6 document — streams live</span>
+                <p>Section 6(1) compliant · streams live</p>
             </div>
         </div>
 
-        <!-- Progress Stepper -->
-        <div class="stepper">
-            <div class="step-item" id="step-1">
-                <div class="step-num">1</div>
+        <!-- Progress -->
+        <div class="progress-track">
+            <div class="prog-step" id="step-1">
+                <div class="prog-dot">1</div>
                 <span>Route Dept.</span>
             </div>
-            <div class="step-item" id="step-2">
-                <div class="step-num">2</div>
+            <div class="prog-step" id="step-2">
+                <div class="prog-dot">2</div>
                 <span>Query RAG</span>
             </div>
-            <div class="step-item" id="step-3">
-                <div class="step-num">3</div>
+            <div class="prog-step" id="step-3">
+                <div class="prog-dot">3</div>
                 <span>Draft RTI</span>
             </div>
-            <div class="step-item" id="step-4">
-                <div class="step-num">✓</div>
+            <div class="prog-step" id="step-4">
+                <div class="prog-dot">✓</div>
                 <span>Complete</span>
             </div>
         </div>
 
-        <!-- Department Routing Badge -->
-        <div class="dept-badge-wrap" id="dept-badge">
+        <!-- Dept badge -->
+        <div class="dept-badge" id="dept-badge">
             <span class="dept-arrow">→</span>
             <span class="dept-name" id="dept-text">Identifying department...</span>
         </div>
 
-        <!-- RTI Output Console -->
-        <div class="doc-console" id="doc-console">
-            <div class="console-placeholder" id="console-placeholder">
-                <div class="icon">⚖️</div>
-                <p>Your RTI application will stream here live.<br>
-                Fill in the form on the left and click <strong>Generate</strong>.</p>
+        <!-- Console -->
+        <div class="console-wrap" id="console-wrap">
+            <div class="console-inner">
+                <div class="console-empty" id="console-empty">
+                    <div class="ce-icon">⚖️</div>
+                    <p>Your RTI application will stream here.<br>Fill the form and click Generate.</p>
+                </div>
+                <div id="rti-output" style="display:none"></div>
             </div>
-            <div id="rti-output" style="display:none"></div>
         </div>
 
-        <!-- Action Bar -->
+        <!-- Actions -->
         <div class="action-bar">
-            <button class="btn btn-outline" id="btn-copy" disabled onclick="copyRTI()">
+            <button class="btn btn-secondary" id="btn-copy" disabled onclick="copyRTI()">
                 📋 Copy Text
             </button>
-            <button class="btn btn-green" id="btn-pdf" disabled onclick="downloadPDF()">
+            <button class="btn btn-jade" id="btn-pdf" disabled onclick="downloadPDF()">
                 ⬇️ Download PDF
             </button>
-            <button class="btn btn-outline" id="btn-wa" disabled onclick="shareWhatsApp()">
+            <button class="btn btn-secondary" id="btn-wa" disabled onclick="shareWhatsApp()">
                 💬 WhatsApp
             </button>
         </div>
     </div>
-</div>
 
-<!-- ── FOOTER ─────────────────────────────────────────────────── -->
+</div><!-- /workspace -->
+
+<!-- FOOTER -->
 <footer>
-    <p>
-        <strong>GovGPT</strong> — Built by Team DLC &nbsp;|&nbsp;
-        Kartik Gupta + Team &nbsp;|&nbsp; B.Sc. Physical Science with CS, Delhi University &nbsp;|&nbsp;
-        <a href="#">Scaler × Meta AI PyTorch Hackathon 2026</a>
-    </p>
-    <p style="margin-top:0.4rem; color: var(--text-faint);">
-        Powered by Gemini 1.5 Pro · LangChain RAG · ChromaDB · Section 6, RTI Act 2005
-    </p>
+    <div class="footer-left">
+        <strong>GovGPT</strong> · Built by Kartik Gupta &amp; Team DLC · B.Sc. Physical Science + CS, Delhi University
+    </div>
+    <div class="footer-right">
+        Powered by Gemini · LangChain RAG · ChromaDB · RTI Act 2005 §6(1)
+    </div>
 </footer>
 
 
-<!-- ═══════════════════════════════════════════════════════════════
-     JAVASCRIPT
-═══════════════════════════════════════════════════════════════ -->
+<!-- ═══════════ JAVASCRIPT ═══════════ -->
 <script>
-// Configure marked.js
+// ── Configure marked ──────────────────────────────────────────
 marked.setOptions({ breaks: true, gfm: true });
 
-// ── STATE ──────────────────────────────────────────────────────
-let rtiRawText = '';
+// ── STATE ─────────────────────────────────────────────────────
+let rtiRawText   = '';
 let isGenerating = false;
 
-// ── DOM REFS ───────────────────────────────────────────────────
+// ── DOM ───────────────────────────────────────────────────────
 const $ = id => document.getElementById(id);
-const inpName     = $('inp-name');
-const inpAddress  = $('inp-address');
-const inpProblem  = $('inp-problem');
-const btnGenerate = $('btn-generate');
-const btnCopy     = $('btn-copy');
-const btnPdf      = $('btn-pdf');
-const btnWa       = $('btn-wa');
-const docConsole  = $('doc-console');
-const rtiOutput   = $('rti-output');
-const placeholder = $('console-placeholder');
-const deptBadge   = $('dept-badge');
-const deptText    = $('dept-text');
-const charCount   = $('char-count');
 
-// Steps
-const steps = [1,2,3,4].map(i => $(`step-${i}`));
+const inpName      = $('inp-name');
+const inpAddress   = $('inp-address');
+const inpProblem   = $('inp-problem');
+const btnGenerate  = $('btn-generate');
+const btnCopy      = $('btn-copy');
+const btnPdf       = $('btn-pdf');
+const btnWa        = $('btn-wa');
+const consoleWrap  = $('console-wrap');
+const consoleInner = consoleWrap.querySelector('.console-inner');
+const consoleEmpty = $('console-empty');
+const rtiOutput    = $('rti-output');
+const deptBadge    = $('dept-badge');
+const deptText     = $('dept-text');
+const charCount    = $('char-count');
+const steps        = [1,2,3,4].map(i => $(`step-${i}`));
 
-// ── CHAR COUNT ─────────────────────────────────────────────────
+// ── CHAR COUNT ────────────────────────────────────────────────
 function updateCharCount() {
     const len = inpProblem.value.length;
-    charCount.textContent = `${len} / 500 characters`;
-    charCount.style.color = len > 400 ? '#f59e0b' : 'var(--text-muted)';
+    charCount.textContent = `${len} / 500`;
+    charCount.classList.toggle('warn', len > 400);
 }
 
-// ── TEMPLATE FILLER ────────────────────────────────────────────
+// ── TEMPLATE FILLER ──────────────────────────────────────────
 function fillTemplate(name, address, text) {
-    inpName.value = name;
+    inpName.value    = name;
     inpAddress.value = address;
     inpProblem.value = text;
     updateCharCount();
-    // Smooth scroll to generate button on mobile
-    if (window.innerWidth < 1100) {
-        $('output-panel').scrollIntoView({ behavior: 'smooth' });
+    if (window.innerWidth < 1080) {
+        $('output-panel').scrollIntoView({ behavior: 'smooth', block: 'start' });
     }
 }
 
-// ── STEP MANAGER ───────────────────────────────────────────────
-function setStep(active) {
+// ── STEPS ─────────────────────────────────────────────────────
+function setStep(n) {
     steps.forEach((s, i) => {
         s.classList.remove('active', 'done');
-        if (i < active - 1) s.classList.add('done');
-        else if (i === active - 1) s.classList.add('active');
+        if (i < n - 1)    s.classList.add('done');
+        else if (i === n - 1) s.classList.add('active');
     });
 }
 
-function allStepsDone() {
+function allDone() {
     steps.forEach(s => { s.classList.remove('active'); s.classList.add('done'); });
 }
 
@@ -1314,65 +1096,55 @@ function resetSteps() {
     steps.forEach(s => s.classList.remove('active', 'done'));
 }
 
-// ── VOICE INPUT ────────────────────────────────────────────────
-const micWidget = $('mic-widget');
-const micCircle = $('mic-circle');
-const micTitle  = $('mic-title');
+// ── VOICE ─────────────────────────────────────────────────────
+const voiceRow   = $('voice-row');
+const voiceBtn   = $('voice-btn');
+const voiceTitle = $('voice-title');
 let recognition;
 
 if ('webkitSpeechRecognition' in window || 'SpeechRecognition' in window) {
     const SR = window.SpeechRecognition || window.webkitSpeechRecognition;
     recognition = new SR();
-    recognition.continuous = false;
+    recognition.continuous    = false;
     recognition.interimResults = true;
-    recognition.lang = 'hi-IN';
+    recognition.lang          = 'hi-IN';
 
     recognition.onstart = () => {
-        micWidget.classList.add('recording');
-        micCircle.textContent = '🔴';
-        micTitle.textContent = 'सुन रहा है... (Listening)';
+        voiceRow.classList.add('recording');
+        voiceBtn.textContent  = '🔴';
+        voiceTitle.textContent = 'सुन रहा है… (Listening)';
     };
 
-    recognition.onresult = (event) => {
+    recognition.onresult = (e) => {
         let interim = '', final = '';
-        for (let i = event.resultIndex; i < event.results.length; i++) {
-            const t = event.results[i][0].transcript;
-            if (event.results[i].isFinal) final += t;
-            else interim += t;
+        for (let i = e.resultIndex; i < e.results.length; i++) {
+            const t = e.results[i][0].transcript;
+            if (e.results[i].isFinal) final += t; else interim += t;
         }
-        inpProblem.value = (final || interim);
+        inpProblem.value = final || interim;
         updateCharCount();
     };
 
-    recognition.onerror = (e) => {
-        console.error('Speech error:', e);
-        stopMic();
-        micTitle.textContent = 'Error. Tap to try again.';
-    };
-
-    recognition.onend = stopMic;
+    recognition.onerror = () => { stopMic(); voiceTitle.textContent = 'Error — tap to retry'; };
+    recognition.onend   = stopMic;
 
     function stopMic() {
-        micWidget.classList.remove('recording');
-        micCircle.textContent = '🎙️';
-        micTitle.textContent = 'Tap to Speak Your Problem';
+        voiceRow.classList.remove('recording');
+        voiceBtn.textContent  = '🎙️';
+        voiceTitle.textContent = 'Tap to speak your problem';
     }
 
-    micWidget.addEventListener('click', () => {
-        if (micWidget.classList.contains('recording')) {
-            recognition.stop();
-        } else {
-            recognition.start();
-        }
+    voiceRow.addEventListener('click', () => {
+        voiceRow.classList.contains('recording') ? recognition.stop() : recognition.start();
     });
 } else {
-    micWidget.style.opacity = '0.45';
-    micWidget.style.cursor = 'not-allowed';
-    micTitle.textContent = 'Voice requires Google Chrome browser';
-    micWidget.onclick = null;
+    voiceRow.style.opacity = '0.4';
+    voiceRow.style.cursor  = 'not-allowed';
+    voiceTitle.textContent = 'Voice requires Google Chrome';
+    voiceRow.onclick       = null;
 }
 
-// ── GENERATE / SSE STREAM ──────────────────────────────────────
+// ── GENERATE / SSE STREAM ─────────────────────────────────────
 btnGenerate.addEventListener('click', generateRTI);
 
 function generateRTI() {
@@ -1383,47 +1155,42 @@ function generateRTI() {
     if (!problem) {
         inpProblem.focus();
         inpProblem.style.borderColor = 'var(--rose)';
-        setTimeout(() => inpProblem.style.borderColor = '', 2000);
+        inpProblem.style.boxShadow   = '0 0 0 3px var(--rose-glow)';
+        setTimeout(() => {
+            inpProblem.style.borderColor = '';
+            inpProblem.style.boxShadow   = '';
+        }, 2200);
         return;
     }
 
-    // UI: loading state
-    isGenerating = true;
-    rtiRawText = '';
-    btnGenerate.disabled = true;
-    btnGenerate.textContent = '⏳ Generating...';
-    btnCopy.disabled = true;
-    btnPdf.disabled = true;
-    btnWa.disabled = true;
+    // Loading state
+    isGenerating  = true;
+    rtiRawText    = '';
+    btnGenerate.disabled    = true;
+    btnGenerate.innerHTML   = '<span class="spin">⏳</span> Generating…';
+    [btnCopy, btnPdf, btnWa].forEach(b => b.disabled = true);
 
     // Show output area
-    placeholder.style.display = 'none';
-    rtiOutput.style.display = 'block';
-    rtiOutput.innerHTML = '<span class="cursor-blink"></span>';
-    docConsole.scrollTop = 0;
+    consoleEmpty.style.display = 'none';
+    rtiOutput.style.display    = 'block';
+    rtiOutput.innerHTML        = '<span class="cursor"></span>';
+    consoleWrap.scrollTop      = 0;
 
-    // Show department badge
-    deptBadge.classList.add('visible');
-    deptText.textContent = 'Routing to correct department...';
+    // Dept badge
+    deptBadge.classList.add('show');
+    deptText.textContent = 'Routing to correct department…';
 
-    // Reset steps
     resetSteps();
     setStep(1);
-
-    // Step timers
     setTimeout(() => setStep(2), 700);
     setTimeout(() => setStep(3), 1500);
 
-    // Build SSE connection
     const params = new URLSearchParams({ problem, name, address });
-    const es = new EventSource(`/stream?${params}`);
+    const es     = new EventSource(`/stream?${params}`);
     let firstToken = true;
 
     es.onmessage = (event) => {
         if (event.data === '[DONE]') {
-            console.log('=== STREAM COMPLETE ===');
-            console.log('Final rtiRawText length:', rtiRawText.length);
-            console.log('Final rtiRawText preview:', rtiRawText.substring(0, 500));
             es.close();
             finishGeneration();
             return;
@@ -1431,46 +1198,38 @@ function generateRTI() {
 
         try {
             const token = JSON.parse(event.data);
-            console.log('Received token:', token.substring(0, 100));
 
-            // Filter out error messages - don't add to RTI text
-            if (typeof token === 'string' && (token.startsWith('❌') || token.startsWith('⚠️') || token.startsWith('Error:') || token.startsWith('Connection failed'))) {
-                console.log('Filtering error token:', token);
-                // Show error in UI but don't add to RTI text
-                rtiOutput.innerHTML = `<div class="error-block">${token}</div>`;
+            // Error token — display but don't add to RTI text
+            if (typeof token === 'string' &&
+                (token.startsWith('❌') || token.startsWith('⚠️') ||
+                 token.startsWith('Error:') || token.startsWith('Connection failed'))) {
+                rtiOutput.innerHTML = `<div class="err-block">${token}</div>`;
                 return;
             }
 
-            // Detect department from first few tokens
             if (firstToken) {
                 firstToken = false;
                 setStep(3);
-                // Try to parse department from early output
-                setTimeout(() => detectDepartment(), 1500);
+                setTimeout(detectDepartment, 1500);
             }
 
             rtiRawText += token;
-            console.log('rtiRawText length after adding:', rtiRawText.length);
-
-            // Render markdown with live cursor
-            rtiOutput.innerHTML = marked.parse(rtiRawText) + '<span class="cursor-blink"></span>';
-
-            // Auto-scroll
-            docConsole.scrollTop = docConsole.scrollHeight;
+            rtiOutput.innerHTML = marked.parse(rtiRawText) + '<span class="cursor"></span>';
+            consoleWrap.scrollTop = consoleWrap.scrollHeight;
 
         } catch (err) {
-            console.error('Parse error:', err);
+            console.error('Token parse error:', err);
         }
     };
 
     es.onerror = () => {
         es.close();
         if (!rtiRawText) {
-            rtiOutput.innerHTML = `<div class="error-block">
-                ❌ <strong>Connection failed.</strong> Please check that:<br>
-                1. <code>app.py</code> is running (terminal shows Flask server)<br>
-                2. Your <code>.env</code> file has a valid <code>GEMINI_API_KEY</code><br>
-                3. You are on <strong>http://localhost:5000</strong>
+            rtiOutput.innerHTML = `<div class="err-block">
+                ❌ <strong>Connection failed.</strong><br>
+                Make sure: (1) <code>app.py</code> is running,
+                (2) <code>.env</code> has a valid <code>GEMINI_API_KEY</code>,
+                (3) you are on <code>http://localhost:5000</code>
             </div>`;
         }
         finishGeneration();
@@ -1478,221 +1237,234 @@ function generateRTI() {
 }
 
 function detectDepartment() {
-    // Look for "CPIO" or "Ministry" or "Department" keyword in first 300 chars
-    const sample = rtiRawText.slice(0, 400).toLowerCase();
+    const s = rtiRawText.slice(0, 500).toLowerCase();
     let dept = '';
 
-    if (sample.includes('agriculture') || sample.includes('pm kisan') || sample.includes('kisan'))
-        dept = 'Department of Agriculture & Farmers Welfare';
-    else if (sample.includes('health') || sample.includes('nha') || sample.includes('ayushman'))
+    if (s.includes('agriculture') || s.includes('pm kisan') || s.includes('kisan'))
+        dept = 'Dept. of Agriculture & Farmers Welfare';
+    else if (s.includes('health') || s.includes('nha') || s.includes('ayushman'))
         dept = 'National Health Authority';
-    else if (sample.includes('rural development') || sample.includes('bdo') || sample.includes('mgnrega'))
+    else if (s.includes('rural development') || s.includes('bdo') || s.includes('mgnrega'))
         dept = 'Ministry of Rural Development / BDO';
-    else if (sample.includes('food') || sample.includes('ration') || sample.includes('pds'))
-        dept = 'Department of Food & Public Distribution';
-    else if (sample.includes('petroleum') || sample.includes('lpg') || sample.includes('ujjwala'))
+    else if (s.includes('food') || s.includes('ration') || s.includes('pds'))
+        dept = 'Dept. of Food & Public Distribution';
+    else if (s.includes('petroleum') || s.includes('lpg') || s.includes('ujjwala'))
         dept = 'Ministry of Petroleum & Natural Gas';
-    else if (sample.includes('passport') || sample.includes('external affairs'))
+    else if (s.includes('passport') || s.includes('external affairs'))
         dept = 'Ministry of External Affairs';
-    else if (sample.includes('railway') || sample.includes('drm'))
+    else if (s.includes('railway') || s.includes('drm'))
         dept = 'Ministry of Railways';
-    else if (sample.includes('housing') || sample.includes('awas'))
+    else if (s.includes('housing') || s.includes('awas'))
         dept = 'Ministry of Housing & Urban Affairs';
-    else if (sample.includes('education') || sample.includes('scholarship'))
+    else if (s.includes('education') || s.includes('scholarship'))
         dept = 'Ministry of Education';
 
-    if (dept) {
-        deptText.textContent = dept;
-    }
+    if (dept) deptText.textContent = dept;
 }
 
 function finishGeneration() {
     isGenerating = false;
-    allStepsDone();
-    btnGenerate.disabled = false;
-    btnGenerate.textContent = '✨ Generate RTI Application';
+    allDone();
+    btnGenerate.disabled  = false;
+    btnGenerate.innerHTML = '✨ Generate RTI Application';
 
     if (rtiRawText && !rtiRawText.startsWith('❌')) {
-        btnCopy.disabled = false;
-        btnPdf.disabled = false;
-        btnWa.disabled = false;
-        // Remove cursor
-        rtiOutput.innerHTML = marked.parse(rtiRawText);
+        [btnCopy, btnPdf, btnWa].forEach(b => b.disabled = false);
+        rtiOutput.innerHTML = marked.parse(rtiRawText); // remove cursor
     }
 }
 
-// ── COPY TO CLIPBOARD ──────────────────────────────────────────
+// ── COPY ──────────────────────────────────────────────────────
 function copyRTI() {
     if (!rtiRawText) return;
     navigator.clipboard.writeText(rtiRawText).then(() => {
         btnCopy.textContent = '✅ Copied!';
-        setTimeout(() => btnCopy.textContent = '📋 Copy Text', 2000);
+        setTimeout(() => { btnCopy.innerHTML = '📋 Copy Text'; }, 2000);
     });
 }
 
-// ── DOWNLOAD PDF ───────────────────────────────────────────────
+// ── DOWNLOAD PDF ──────────────────────────────────────────────
+// FIX: uses rtiRawText (the raw markdown string) instead of innerText,
+//      then strips markdown syntax for clean plain-text PDF.
 function downloadPDF() {
     try {
-        // Use displayed content - what user sees on screen
-        let contentToUse = rtiOutput.innerText;
-        
-        if (!contentToUse || contentToUse.length < 50) {
-            alert('No RTI content to download. Please generate an RTI first.');
+        // Validate we have content
+        if (!rtiRawText || rtiRawText.trim().length < 30) {
+            alert('No RTI content to download. Please generate an RTI application first.');
             return;
         }
 
-        if (!window.jspdf) {
-            alert('PDF library not loaded. Please check your internet connection.');
+        // Validate jsPDF is loaded
+        if (!window.jspdf || !window.jspdf.jsPDF) {
+            alert('PDF library not loaded. Please check your internet connection and reload the page.');
             return;
         }
 
         const { jsPDF } = window.jspdf;
-        const doc = new jsPDF('p', 'mm', 'a4');
-        const W = doc.internal.pageSize.getWidth();   // 210
-        const H = doc.internal.pageSize.getHeight();  // 297
-        const M = 20;   // margin
-        const CW = W - M * 2; // content width
+        const doc = new jsPDF({ orientation: 'p', unit: 'mm', format: 'a4' });
 
-        // Simple cleaning - remove error indicators only
-        let cleanText = contentToUse
-            .replace(/❌.*$/gm, '')
-            .replace(/⚠️.*$/gm, '')
-            .replace(/Error:.*$/gm, '')
-            .replace(/\*\*/g, '')
-            .replace(/\*/g, '')
+        const W  = doc.internal.pageSize.getWidth();   // 210mm
+        const H  = doc.internal.pageSize.getHeight();  // 297mm
+        const ML = 18;  // left margin
+        const MR = 18;  // right margin
+        const MT = 50;  // top margin (below header)
+        const MB = 25;  // bottom margin (above footer)
+        const CW = W - ML - MR;  // content width
+
+        // ── Strip markdown from rtiRawText for clean plain text ──
+        let plainText = rtiRawText
+            // Remove markdown headings (##, ###, etc.)
+            .replace(/^#{1,6}\s+/gm, '')
+            // Bold **text** → text
+            .replace(/\*\*(.*?)\*\*/g, '$1')
+            // Italic *text* → text
+            .replace(/\*(.*?)\*/g, '$1')
+            // Horizontal rules
+            .replace(/^[-*_]{3,}\s*$/gm, '')
+            // Blockquotes
+            .replace(/^>\s*/gm, '')
+            // Inline code
+            .replace(/`([^`]+)`/g, '$1')
+            // Remove emoji error indicators
+            .replace(/^❌.*$/gm, '')
+            .replace(/^⚠️.*$/gm, '')
+            // Collapse 3+ blank lines to 2
+            .replace(/\n{3,}/g, '\n\n')
             .trim();
 
-        // ── Page border ──
-        doc.setDrawColor(100, 100, 120);
-        doc.setLineWidth(0.5);
-        doc.rect(10, 10, W - 20, H - 20);
+        // ── Draw page ──
+        function drawPage() {
+            // Border
+            doc.setDrawColor(180, 160, 100);
+            doc.setLineWidth(0.6);
+            doc.rect(8, 8, W - 16, H - 16);
 
-        // ── Letterhead background ──
-        doc.setFillColor(248, 248, 255);
-        doc.rect(10, 10, W - 20, 35, 'F');
+            // Header bg
+            doc.setFillColor(247, 244, 238);
+            doc.rect(8, 8, W - 16, 38, 'F');
 
-        // ── Top accent bar ──
-        doc.setFillColor(75, 40, 150);
-        doc.rect(10, 10, W - 20, 4, 'F');
+            // Gold accent bar at top
+            doc.setFillColor(180, 140, 60);
+            doc.rect(8, 8, W - 16, 3.5, 'F');
 
-        // ── Title ──
-        doc.setFont('times', 'bold');
-        doc.setFontSize(14);
-        doc.setTextColor(20, 20, 40);
-        doc.text('APPLICATION UNDER THE RIGHT TO INFORMATION ACT, 2005', W / 2, 22, { align: 'center' });
+            // Title
+            doc.setFont('times', 'bold');
+            doc.setFontSize(13);
+            doc.setTextColor(30, 25, 10);
+            doc.text(
+                'APPLICATION UNDER THE RIGHT TO INFORMATION ACT, 2005',
+                W / 2, 22,
+                { align: 'center', maxWidth: CW }
+            );
 
-        // ── Sub-title ──
-        doc.setFont('helvetica', 'italic');
-        doc.setFontSize(9);
-        doc.setTextColor(80, 80, 100);
-        doc.text('Section 6(1) — Generated by GovGPT AI Legal Assistant', W / 2, 30, { align: 'center' });
+            // Sub-title
+            doc.setFont('helvetica', 'italic');
+            doc.setFontSize(8.5);
+            doc.setTextColor(90, 80, 60);
+            doc.text('Section 6(1) — Drafted by GovGPT AI · Team DLC', W / 2, 30, { align: 'center' });
 
-        // ── Separator line ──
-        doc.setDrawColor(75, 40, 150);
-        doc.setLineWidth(0.8);
-        doc.line(M, 45, W - M, 45);
+            // Separator
+            doc.setDrawColor(180, 140, 60);
+            doc.setLineWidth(0.7);
+            doc.line(ML, 46, W - MR, 46);
 
-        // Split into paragraphs
-        const paragraphs = plain.split('\n\n');
-        let y = 52;
-        const LH = 6.5;
-        const PH = 4; // paragraph spacing
+            // Footer
+            doc.setFont('helvetica', 'italic');
+            doc.setFontSize(7.5);
+            doc.setTextColor(140, 130, 110);
+            const fDate = new Date().toLocaleDateString('en-IN', {
+                day: '2-digit', month: 'long', year: 'numeric'
+            });
+            doc.text(
+                `GovGPT · ${fDate} · RTI Act 2005 §6(1)`,
+                W / 2, H - 13, { align: 'center' }
+            );
 
-        doc.setFont('times', 'normal');
-        doc.setFontSize(11);
-        doc.setTextColor(20, 20, 20);
+            // Gold bottom bar
+            doc.setFillColor(180, 140, 60);
+            doc.rect(8, H - 10, W - 16, 2, 'F');
+        }
 
-        paragraphs.forEach(paragraph => {
-            const trimmed = paragraph.trim();
+        // Draw first page
+        drawPage();
+        let y = MT;
+
+        // ── Render paragraphs ──
+        const LH  = 6.2;  // line height
+        const PH  = 3.5;  // extra space after paragraph
+
+        // Split on blank lines (paragraph breaks)
+        const paragraphs = plainText.split(/\n\n+/);
+
+        paragraphs.forEach(para => {
+            const trimmed = para.trim();
             if (!trimmed) return;
 
-            // Check if this is a heading
-            const isHeading = /^(To,|From:|Subject:|Date:|Declaration|Yours|Sir\/Madam)/i.test(trimmed);
-            
-            // Check if this is a numbered list item
-            const isListItem = /^\d+\./.test(trimmed);
+            // Detect structural sections for styling
+            const isAddrBlock   = /^To,/i.test(trimmed);
+            const isSectionHead = /^(Subject:|Sir\/Madam|Yours faithfully|Declaration|Application Fee)/i.test(trimmed);
+            const isNumbered    = /^\d+\./.test(trimmed);
+            const isSignature   = /^[\(\[*]*Signature[\)\]*]*/i.test(trimmed);
 
-            if (isHeading) {
+            if (isAddrBlock || isSectionHead) {
                 doc.setFont('times', 'bold');
-                doc.setFontSize(12);
-                doc.setTextColor(75, 40, 150);
-                y += PH;
-            } else if (isListItem) {
+                doc.setFontSize(10.5);
+                doc.setTextColor(100, 70, 20);
+                y += PH * 0.5;
+            } else if (isSignature) {
+                doc.setFont('times', 'italic');
+                doc.setFontSize(10.5);
+                doc.setTextColor(50, 50, 50);
+            } else if (isNumbered) {
                 doc.setFont('times', 'normal');
-                doc.setFontSize(11);
-                doc.setTextColor(20, 20, 20);
+                doc.setFontSize(10.5);
+                doc.setTextColor(30, 30, 30);
             } else {
                 doc.setFont('times', 'normal');
-                doc.setFontSize(11);
-                doc.setTextColor(20, 20, 20);
+                doc.setFontSize(10.5);
+                doc.setTextColor(30, 30, 30);
             }
 
-            const lines = doc.splitTextToSize(trimmed, CW);
-            
-            lines.forEach((line, index) => {
-                if (y > H - 25) {
-                    doc.addPage();
-                    // Border on new page
-                    doc.setDrawColor(100, 100, 120);
-                    doc.setLineWidth(0.5);
-                    doc.rect(10, 10, W - 20, H - 20);
-                    y = 20;
-                }
-
-                doc.text(line, M, y);
-                y += LH;
+            // Handle multi-line paragraphs (preserve single \n as line breaks)
+            const subLines = trimmed.split('\n');
+            subLines.forEach(subLine => {
+                const wrapped = doc.splitTextToSize(subLine.trim() || ' ', CW);
+                wrapped.forEach(line => {
+                    if (y > H - MB) {
+                        doc.addPage();
+                        drawPage();
+                        y = MT;
+                        // Restore font after new page
+                        doc.setFont('times', 'normal');
+                        doc.setFontSize(10.5);
+                        doc.setTextColor(30, 30, 30);
+                    }
+                    doc.text(line, ML, y);
+                    y += LH;
+                });
             });
 
             y += PH;
         });
 
-        // ── Footer on last page ──
-        doc.setFont('helvetica', 'italic');
-        doc.setFontSize(8);
-        doc.setTextColor(120, 120, 140);
-        const footerText = `Generated by GovGPT — ${new Date().toLocaleDateString('en-IN', { day: '2-digit', month: 'long', year: 'numeric' })} | RTI Act 2005, Section 6(1)`;
-        doc.text(footerText, W / 2, H - 15, { align: 'center' });
+        // ── Save ──
+        const safeName = (inpName.value.trim() || 'Citizen').replace(/\s+/g, '_').replace(/[^a-zA-Z0-9_]/g, '');
+        const dateStr  = new Date().toISOString().split('T')[0];
+        doc.save(`RTI_Application_${safeName}_${dateStr}.pdf`);
 
-        // ── Bottom accent ──
-        doc.setFillColor(75, 40, 150);
-        doc.rect(10, H - 12, W - 20, 2, 'F');
-
-        // Save
-        const fileName = `RTI_Application_${(inpName.value.trim() || 'Citizen').replace(/\s+/g,'_')}_${new Date().toISOString().split('T')[0]}.pdf`;
-        doc.save(fileName);
-        
-        console.log('PDF downloaded successfully:', fileName);
     } catch (error) {
-        console.error('PDF download error:', error);
-        alert('Failed to download PDF. Error: ' + error.message);
+        console.error('PDF generation error:', error);
+        alert('PDF download failed: ' + error.message + '\n\nPlease try again or use the Copy button.');
     }
 }
 
-// ── WHATSAPP SHARE ─────────────────────────────────────────────
+// ── WHATSAPP ──────────────────────────────────────────────────
 function shareWhatsApp() {
-    const name = inpName.value.trim() || 'a citizen';
-    const snippet = rtiRawText.slice(0, 300).replace(/[#*]/g, '').trim();
-    const msg = `📜 *GovGPT — RTI Application Generated*\n\nApplicant: *${name}*\n\n${snippet}...\n\n_Generated using GovGPT — RTI in 60 seconds. Powered by Gemini AI._`;
+    const name    = inpName.value.trim() || 'a citizen';
+    const snippet = rtiRawText.slice(0, 280).replace(/[#*`]/g, '').trim();
+    const msg     = `📜 *GovGPT — RTI Application*\n\nApplicant: *${name}*\n\n${snippet}...\n\n_Generated by GovGPT · RTI Act 2005 §6(1)_`;
     window.open(`https://api.whatsapp.com/send?text=${encodeURIComponent(msg)}`, '_blank');
 }
-
-// ── STAT COUNTER ANIMATION ─────────────────────────────────────
-function animateCounter(el, target, suffix, duration) {
-    let start = 0;
-    const step = Math.ceil(target / (duration / 16));
-    const timer = setInterval(() => {
-        start = Math.min(start + step, target);
-        el.textContent = start + suffix;
-        if (start >= target) clearInterval(timer);
-    }, 16);
-}
-
-// Run on load
-window.addEventListener('load', () => {
-    // Don't animate — keep static for professional look
-    // animateCounter($('counter-crore'), 70, 'Cr+', 1200);
-});
-
 </script>
 </body>
 </html>
